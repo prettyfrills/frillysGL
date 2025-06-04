@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 
+#include "Shader.h"
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void ProcessInput(GLFWwindow* window);
 
@@ -111,39 +113,9 @@ int main()
     glEnableVertexAttribArray(1);
 
     // Process shaders.
-    vert = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vert, 1, &vertCode, NULL);
-    glCompileShader(vert);
 
-    int vStatus{};
-    char vLog[512];
-    glGetShaderiv(vert, GL_COMPILE_STATUS, &vStatus);
-    if(!vStatus)
-    {
-        glGetShaderInfoLog(vert, 512, NULL, vLog);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << vLog <<std::endl;
-    }
-
-    frag = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(frag, 1, &fragCode, NULL);
-    glCompileShader(frag);
-
-    int fStatus{};
-    char fLog[512];
-    glGetShaderiv(frag, GL_COMPILE_STATUS, &fStatus);
-    if(!fStatus)
-    {
-        glGetShaderInfoLog(frag, 512, NULL, fLog);
-        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << fLog <<std::endl;
-    }
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vert);
-    glAttachShader(shaderProgram, frag);
-    glLinkProgram(shaderProgram);
-
-    glDeleteShader(vert);
-    glDeleteShader(frag);
+    Shader* testShader = new Shader();
+    testShader->CreateFromString(vertCode, fragCode);
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -156,11 +128,11 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float time = glfwGetTime();
-        float newCol = (sin(time) / 2.0f) + 0.5f;
-        int colLocation = glGetUniformLocation(shaderProgram, "globalCol");
-        glUseProgram(shaderProgram);
-        glUniform4f(colLocation, 0.0f, newCol, 0.0f, 1.0f);
+        // float time = glfwGetTime();
+        // float newCol = (sin(time) / 2.0f) + 0.5f;
+        // int colLocation = glGetUniformLocation(shaderProgram, "globalCol");
+        // glUniform4f(colLocation, 0.0f, newCol, 0.0f, 1.0f);
+        testShader->UseShader();
 
         glBindVertexArray(VAO);
 
