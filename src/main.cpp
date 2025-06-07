@@ -11,29 +11,7 @@ void ProcessInput(GLFWwindow* window);
 unsigned int VAO{};
 unsigned int VBO{};
 unsigned int EBO{};
-unsigned int vert{};
-unsigned int frag{};
 unsigned int shaderProgram{};
-
-const char* vertCode = 
-"#version 330 core                      \n"
-"layout (location = 0) in vec3 aPos;    \n"
-"layout (location = 1) in vec3 aColor;  \n"
-"out vec4 vertCol;                      \n"
-"void main()                            \n"
-"{                                      \n"
-"gl_Position = vec4(aPos, 1.0);         \n"
-"vertCol = vec4(aColor, 1.0);           \n"
-"}\0";
-
-const char* fragCode =
-"#version 330 core                          \n"
-"in vec4 vertCol;                           \n"
-"out vec4 FragColor;                        \n"
-"void main()                                \n"
-"{                                          \n"
-"FragColor = vertCol;                       \n"
-"}\0";
 
 float vertices[] = {
     0.5f, 0.5f, 0.0f,       // Top right.
@@ -115,7 +93,7 @@ int main()
     // Process shaders.
 
     Shader* testShader = new Shader();
-    testShader->CreateFromString(vertCode, fragCode);
+    testShader->CreateFromFile("Shaders/testVert.glsl", "Shaders/testFrag.glsl");
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

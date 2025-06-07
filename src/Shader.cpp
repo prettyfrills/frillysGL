@@ -62,13 +62,13 @@ void Shader::CreateFromFile(const char* vertexPath, const char* fragmentPath)
     while(!vertStream.eof())
     {
         std::getline(vertStream, vertLine);
-        vertShader.append(vertLine);
+        vertShader.append(vertLine + '\n');
     }
     vertStream.close();
     while(!fragStream.eof())
     {
         std::getline(fragStream, fragLine);
-        fragShader.append(fragLine);
+        fragShader.append(fragLine + '\n');
     }
     fragStream.close();
 
