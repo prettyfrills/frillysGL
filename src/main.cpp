@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 
 #include "Shader.h"
@@ -15,6 +18,7 @@ unsigned int EBO{};
 unsigned int shaderProgram{};
 unsigned int texture{};
 unsigned int texture2{};
+unsigned int transform{};
 
 // Texturing.
 
@@ -163,6 +167,9 @@ int main()
     testShader->SetInt("texSampler1", 0);
     testShader->SetInt("texSampler2", 1);
 
+    transform = glGetUniformLocation(testShader->GetID(), "transformation");
+    
+
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // Render loop.
@@ -173,6 +180,12 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        // trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+
+        glUniformMatrix4fv(transform, 1, GL_FALSE, glm::value_ptr(trans));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture2);
