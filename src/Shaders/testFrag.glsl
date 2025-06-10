@@ -11,5 +11,5 @@ void main()
 {
     // FragColor = vertCol;
     // FragColor = texture(texSampler1, texCoord);
-    FragColor = mix(texture(texSampler1, texCoord), texture(texSampler2, texCoord), 0.5);
+    FragColor = mix(texture(texSampler1, texCoord), texture(texSampler2, texCoord), 1.0);
 }
