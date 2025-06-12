@@ -10,6 +10,7 @@
 #include "Shader.h"
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void ProcessInput(GLFWwindow* window);
 
 unsigned int VAO{};
@@ -22,6 +23,25 @@ unsigned int transform{};
 unsigned int modelLocation{};
 unsigned int viewLocation{};
 unsigned int projLocation{};
+
+float lastX = 400.0f;
+float lastY = 300.0f;
+
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+// glm::vec3 camForward = glm::normalize(camPosition - camTarget);
+glm::vec3 camForward = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 camRight = glm::normalize(glm::cross(up, camForward));
+glm::vec3 camUp = glm::cross(camForward, camRight);
+
+float deltaTime = 0.0f;
+float prevTime = 0.0f;
+float moveSpeed = 2.0f;
+float sensitivity = 0.1f;
+float pitch = 0.0f;
+float yaw = -90.0f;
+bool mouseFocused = false;
 
 // Texturing.
 
@@ -131,7 +151,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* mainWindow = glfwCreateWindow(800, 600, "Test Window", NULL, NULL);
+    GLFWwindow* mainWindow = glfwCreateWindow(800, 600, "FrillysGL", NULL, NULL);
     if(!mainWindow)
     {
         std::cerr << "Failed to create glfw window. Aborting." << std::endl;
@@ -149,6 +169,7 @@ int main()
 
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(mainWindow, framebufferSizeCallback);
+    glfwSetCursorPosCallback(mainWindow, MouseCallback);
 
     // Create and bind buffers. Sends vertex data to the GPU.
 
@@ -239,6 +260,7 @@ int main()
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
+    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Render loop.
 
@@ -253,7 +275,8 @@ int main()
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         // model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::lookAt(camPosition, camPosition + camForward, up);
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
         // glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
@@ -301,8 +324,51 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+void MouseCallback(GLFWwindow* window, double xPos, double yPos)
+{
+    if(!mouseFocused)
+    {
+        lastX = xPos;
+        lastY = yPos;
+        mouseFocused = true;
+    }
+
+    float xOffset = xPos - lastX;
+    float yOffset = yPos - lastY;
+    lastX = xPos;
+    lastY = yPos;
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
+    yaw += xOffset;
+    pitch -= yOffset;
+
+    if(pitch > 89.0f)
+    pitch =  89.0f;
+    if(pitch < -89.0f)
+    pitch = -89.0f;
+
+    glm::vec3 direction{};
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    camForward = glm::normalize(direction);
+}
+
 void ProcessInput(GLFWwindow* window)
 {
+    float frameTime = glfwGetTime();
+    deltaTime = frameTime - prevTime;
+    prevTime = frameTime;
+
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camPosition += moveSpeed * deltaTime * camForward;
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camPosition -= moveSpeed * deltaTime * camForward;
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camPosition -= glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camPosition += glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
 }
