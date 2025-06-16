@@ -11,6 +11,9 @@ class Shader
     private:
 
     unsigned int ID{};          // Shader program ID.
+    unsigned int uniModel{};
+    unsigned int uniView{};
+    unsigned int uniProjection{};
 
     void AddShader(GLuint program, const char* shaderContent, GLenum shaderType);
     void CompileShader(const char* vertexCode, const char* fragmentCode);
@@ -26,11 +29,15 @@ class Shader
     void ClearShader();
 
     // Uniform Utils.
-    int GetID();
+    unsigned int GetID();
+    unsigned int GetModel();
+    unsigned int GetView();
+    unsigned int GetProjection();
 
     void SetBool(const std::string &name, bool value) const;
     void SetInt(const std::string &name, int value) const;
     void SetFloat(const std::string &name, float value) const;
+    void SetVec3(const std::string &name, float x, float y, float z);
 };
 
 #endif
