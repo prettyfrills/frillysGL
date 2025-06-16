@@ -11,7 +11,9 @@
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod);
 void ProcessInput(GLFWwindow* window);
+void ToggleMouseLock(GLFWwindow* window);
 
 unsigned int VAO{};
 unsigned int VBO{};
@@ -30,7 +32,6 @@ float lastY = 300.0f;
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-// glm::vec3 camForward = glm::normalize(camPosition - camTarget);
 glm::vec3 camForward = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 camRight = glm::normalize(glm::cross(up, camForward));
 glm::vec3 camUp = glm::cross(camForward, camRight);
@@ -48,13 +49,6 @@ bool mouseFocused = false;
 int width{};
 int height{};
 int channels{};
-
-float vertices[] = {
-    0.5f, 0.5f, 0.0f,       // Top right.
-    0.5f, -0.5f, 0.0f,      // Bottom right.
-    -0.5f, -0.5f, 0.0f,     // Bottom left.
-    -0.5f, 0.5f, 0.0f
-};
 
 float cubeVerts[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -113,36 +107,6 @@ glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)  
 };
 
-// float bowVerts[] = {
-//     -0.5f, -0.5f, 0.0f,
-//     -0.5f, 0.5f, 0.0f,
-//     0.0f, 0.0f, 0.0f,
-
-//     0.0f, 0.0f, 0.0f,
-//     0.5f, 0.5f, 0.0f,
-//     0.5f, -0.5f, 0.0f
-// };
-
-// float colorVerts[] = {
-//     // position.             // color.
-//     0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-//     -0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 0.0f,
-//     0.0f, 0.5f, 0.0f,      0.0f, 0.0f, 1.0f
-// };
-
-// float texVerts[] = {
-//     // position.             // color.           // texcoords.
-//     0.5f, 0.5f, 0.0f,     1.0f, 0.0f, 0.0f,     1.0f, 1.0f,
-//     0.5f, -0.5f, 0.0f,    0.0f, 1.0f, 0.0f,     1.0f, 0.0f,
-//     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,     0.0f, 0.0f,
-//     -0.5f, 0.5f, 0.0f,    1.0f, 1.0f, 0.0f,     0.0f, 1.0f
-// };
-
-unsigned int indices[] = {
-    0, 1, 3,                // Triangle 1.
-    1, 2, 3                 // Triangle 2.
-};
-
 int main()
 {
     // Initialize glfw.
@@ -170,6 +134,7 @@ int main()
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(mainWindow, framebufferSizeCallback);
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
+    glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
     // Create and bind buffers. Sends vertex data to the GPU.
 
@@ -178,27 +143,12 @@ int main()
     glGenBuffers(1, &EBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(bowVerts), bowVerts, GL_STATIC_DRAW);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(colorVerts), colorVerts, GL_STATIC_DRAW);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(texVerts), texVerts, GL_STATIC_DRAW);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerts), cubeVerts, GL_STATIC_DRAW);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Set vertex attribute pointers.
-
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);                    // position.
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);                    // colored verts pos.
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);                       // tex verts pos.
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));  // color.
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));     // tex verts color.
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));     // texture.
-    // glEnableVertexAttribArray(2);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
     // Texturing.
@@ -271,19 +221,13 @@ int main()
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-        // model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         view = glm::lookAt(camPosition, camPosition + camForward, up);
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        // glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-
-        // glUniformMatrix4fv(transform, 1, GL_FALSE, glm::value_ptr(trans));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture2);
@@ -301,11 +245,6 @@ int main()
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-        // glDrawArrays(GL_TRIANGLES, 0, 3);                    // tri
-        // glDrawArrays(GL_TRIANGLES, 0, 6);                    // bow
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);    // rec
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
@@ -354,6 +293,14 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     camForward = glm::normalize(direction);
 }
 
+void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
+{
+    if(key == GLFW_KEY_F8 && action == GLFW_PRESS)
+    {
+        ToggleMouseLock(window);
+    }
+}
+
 void ProcessInput(GLFWwindow* window)
 {
     float frameTime = glfwGetTime();
@@ -371,4 +318,17 @@ void ProcessInput(GLFWwindow* window)
         camPosition -= glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camPosition += glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
+}
+
+void ToggleMouseLock(GLFWwindow* window)
+{
+    if(!mouseFocused)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        mouseFocused = true;
+        return;
+    }
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    mouseFocused = false;
 }
