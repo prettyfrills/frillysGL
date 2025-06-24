@@ -300,10 +300,17 @@ int main()
 
     Shader* testShader = new Shader();
     // testShader->CreateFromFile("Shaders/LitPhongVert.glsl", "Shaders/LitPhongFrag.glsl");
-    testShader->CreateFromFile("Shaders/LitGouraudVert.glsl", "Shaders/LitGouraudFrag.glsl");
+    testShader->CreateFromFile("Shaders/LitPhongVert.glsl", "Shaders/LitPhongFrag.glsl");
     testShader->UseShader();
-    testShader->SetVec3("objColor", 0.31f, 0.5f, 1.0f);
-    testShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+    testShader->SetVec3("matr.ambient", glm::vec3(1.0f, 0.31f, 0.2f));
+    testShader->SetVec3("matr.diffuse", glm::vec3(0.31f, 0.5f, 1.0f));
+    testShader->SetVec3("matr.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    testShader->SetFloat("matr.roughness", 2.0f);
+
+    testShader->SetVec3("lght.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
+    testShader->SetVec3("lght.specular", glm::vec3(0.01f));
     testShader->SetVec3("lightPos", lightPos);
 
     Shader* lightShader = new Shader();
@@ -332,6 +339,12 @@ int main()
         glUniformMatrix4fv(testShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(testShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
 
+        glm::vec3 lightColor{};
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.32f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+        testShader->SetVec3("lght.ambient", 0.2f * lightColor);
+
         // glActiveTexture(GL_TEXTURE0);
         // glBindTexture(GL_TEXTURE_2D, texture2);
         // glActiveTexture(GL_TEXTURE1);
@@ -359,6 +372,8 @@ int main()
         glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
+
+        lightShader->SetVec3("color", lightColor);
 
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
