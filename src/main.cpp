@@ -299,7 +299,8 @@ int main()
     // Process shaders.
 
     Shader* testShader = new Shader();
-    testShader->CreateFromFile("Shaders/coloredCubeVert.glsl", "Shaders/coloredCubeFrag.glsl");
+    // testShader->CreateFromFile("Shaders/LitPhongVert.glsl", "Shaders/LitPhongFrag.glsl");
+    testShader->CreateFromFile("Shaders/LitGouraudVert.glsl", "Shaders/LitGouraudFrag.glsl");
     testShader->UseShader();
     testShader->SetVec3("objColor", 0.31f, 0.5f, 1.0f);
     testShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
