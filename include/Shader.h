@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 class Shader
 {
@@ -16,6 +17,7 @@ class Shader
     unsigned int uniView{};
     unsigned int uniProjection{};
     unsigned int uniNorm{};
+    std::vector<unsigned int> textures;
 
     void AddShader(GLuint program, const char* shaderContent, GLenum shaderType);
     void CompileShader(const char* vertexCode, const char* fragmentCode);
@@ -27,7 +29,9 @@ class Shader
 
     void CreateFromString(const char* vertexCode, const char* fragmentCode);
     void CreateFromFile(const char* vertexPath, const char* fragmentPath);
+    void AddTexture(const char* texPath, int width, int height, int channels);
     void UseShader();
+    void UseTextures();
     void ClearShader();
 
     // Uniform Utils.

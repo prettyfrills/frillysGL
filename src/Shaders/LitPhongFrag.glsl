@@ -22,7 +22,7 @@ in vec3 fragPos;
 out vec4 FragColor;
 
 // uniform vec3 objColor;
-uniform vec3 lightColor;
+// uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform Material matr;
