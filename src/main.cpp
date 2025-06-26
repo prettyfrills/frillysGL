@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 
+#include "Camera.h"
 #include "Shader.h"
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -23,160 +24,22 @@ float lastX = 400.0f;
 float lastY = 300.0f;
 
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 camTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 camForward = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 camRight = glm::normalize(glm::cross(up, camForward));
-glm::vec3 camUp = glm::cross(camForward, camRight);
+
+Camera* camera = new Camera();
 
 float deltaTime = 0.0f;
 float prevTime = 0.0f;
 float moveSpeed = 2.0f;
 float sensitivity = 0.1f;
-float pitch = 0.0f;
-float yaw = -90.0f;
 bool mouseFocused = false;
 
 unsigned int lightVAO{};
 glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, -5.0f);
 
 // Texturing.
-
 int width{};
 int height{};
 int channels{};
-
-float cubeVerts[] = {
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f,
-
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f
-};
-
-float texCubeVerts[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-};
-
-float normCubeVerts[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-};
 
 float litTexCube[] = {
     // positions          // normals           // texture coords
@@ -302,8 +165,8 @@ int main()
     testShader->SetVec3("lght.specular", glm::vec3(0.05f));
     testShader->SetVec3("lightPos", lightPos);
 
-    testShader->AddTexture("../Assets/Textures/container2.png", width, height, channels);
-    testShader->AddTexture("../Assets/Textures/containerSpec.png", width, height, channels);
+    testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
+    testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
 
     Shader* lightShader = new Shader();
     lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/lightCubeFrag.glsl");
@@ -322,12 +185,11 @@ int main()
 
         // Render lit objects.
         testShader->UseShader();
-        testShader->SetVec3("viewPos", camPosition);
+        testShader->SetVec3("viewPos", camera->position);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-        view = glm::lookAt(camPosition, camPosition + camForward, up);
+        view = camera->GetLookAt();
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
         glUniformMatrix4fv(testShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(testShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -399,19 +261,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     lastY = yPos;
     xOffset *= sensitivity;
     yOffset *= sensitivity;
-    yaw += xOffset;
-    pitch -= yOffset;
 
-    if(pitch > 89.0f)
-    pitch =  89.0f;
-    if(pitch < -89.0f)
-    pitch = -89.0f;
-
-    glm::vec3 direction{};
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    camForward = glm::normalize(direction);
+    camera->Rotate(xOffset, yOffset);
 }
 
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -424,6 +275,7 @@ void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int 
 
 void ProcessInput(GLFWwindow* window)
 {
+    glm::vec3 velocity = glm::vec3(0.0f);
     float frameTime = glfwGetTime();
     deltaTime = frameTime - prevTime;
     prevTime = frameTime;
@@ -432,17 +284,19 @@ void ProcessInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camPosition += moveSpeed * deltaTime * camForward;
+        velocity.z += 1.0f;
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camPosition -= moveSpeed * deltaTime * camForward;
+        velocity.z -= 1.0f;
     if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camPosition -= glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
+        velocity.x += 1.0f;
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camPosition += glm::normalize(glm::cross(camForward, up)) * moveSpeed * deltaTime;
+        velocity.x -= 1.0f;
     if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        camPosition += moveSpeed * deltaTime * up;
+        velocity.y += 1.0f;
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        camPosition -= moveSpeed * deltaTime * up;
+        velocity.y -= 1.0f;
+
+    camera->Move(velocity * moveSpeed * deltaTime);
 }
 
 void ToggleMouseLock(GLFWwindow* window)
