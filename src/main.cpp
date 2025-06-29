@@ -16,20 +16,19 @@ void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int 
 void ProcessInput(GLFWwindow* window);
 void ToggleMouseLock(GLFWwindow* window);
 
+// TODO: Refactor into mesh class.
 unsigned int VAO{};
 unsigned int VBO{};
 unsigned int EBO{};
 
-float lastX = 400.0f;
-float lastY = 300.0f;
-
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-
 Camera* camera = new Camera();
 
+// Input variables.
+float lastX = 400.0f;
+float lastY = 300.0f;
 float deltaTime = 0.0f;
 float prevTime = 0.0f;
-float moveSpeed = 2.0f;
 float sensitivity = 0.1f;
 bool mouseFocused = false;
 
@@ -102,6 +101,7 @@ glm::vec3 cubePositions[] = {
 int main()
 {
     // Initialize glfw.
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -163,6 +163,10 @@ int main()
     testShader->SetVec3("lght.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
     testShader->SetVec3("lght.specular", glm::vec3(0.05f));
+    testShader->SetVec3("lght.direction", glm::vec3(-0.2f, -1.0, -0.3f));
+    testShader->SetFloat("lght.constant", 1.0f);
+    testShader->SetFloat("lght.linear", 0.09f);
+    testShader->SetFloat("lght.quadratic", 0.032f);
     testShader->SetVec3("lightPos", lightPos);
 
     testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
@@ -296,7 +300,7 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    camera->Move(velocity * moveSpeed * deltaTime);
+    camera->Move(velocity * deltaTime);
 }
 
 void ToggleMouseLock(GLFWwindow* window)

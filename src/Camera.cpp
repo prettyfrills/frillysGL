@@ -15,7 +15,7 @@ void Camera::Move(glm::vec3 direction)
 {
     right = glm::normalize(glm::cross(globalUp, forward));
     glm::vec3 dir = forward * direction.z + right * direction.x + up * direction.y;
-    position += dir;
+    position += dir * moveSpeed;
 }
 
 void Camera::Rotate(float x, float y)
