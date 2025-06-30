@@ -30,7 +30,6 @@ in vec3 fragPos;
 in vec2 texCoord;
 out vec4 FragColor;
 
-uniform sampler2D tex1;
 uniform Material matr;
 uniform Light lght;
 uniform vec3 viewPos;

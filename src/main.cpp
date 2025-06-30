@@ -98,6 +98,13 @@ glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)  
 };
 
+glm::vec3 lightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f)
+};
+
 int main()
 {
     // Initialize glfw.
@@ -153,12 +160,51 @@ int main()
     // Process shaders.
 
     Shader* testShader = new Shader();
-    testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/LitTexFrag.glsl");
+    testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightFrag.glsl");
     testShader->UseShader();
 
     testShader->SetInt("matr.diffuse", 0);
     testShader->SetInt("matr.specular", 1);
     testShader->SetFloat("matr.roughness", 2.0f);
+
+    // Directional light.
+    testShader->SetVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    testShader->SetVec3("dirLight.ambient", glm::vec3(0.1f));
+    testShader->SetVec3("dirLight.diffuse", glm::vec3(0.5f));
+    testShader->SetVec3("dirLight.specular", glm::vec3(0.05f));
+
+    // Point lights.
+    testShader->SetVec3("pointLights[0].position", lightPositions[0]);
+    testShader->SetVec3("pointLights[0].ambient", glm::vec3(0.2f));
+    testShader->SetVec3("pointLights[0].diffuse", glm::vec3(1.0f));
+    testShader->SetVec3("pointLights[0].specular", glm::vec3(0.05f));
+    testShader->SetFloat("pointLights[0].constant", 1.0f);
+    testShader->SetFloat("pointLights[0].linear", 0.09f);
+    testShader->SetFloat("pointLights[0].quadratic", 0.032f);
+
+    testShader->SetVec3("pointLights[1].position", lightPositions[1]);
+    testShader->SetVec3("pointLights[1].ambient", glm::vec3(0.2f));
+    testShader->SetVec3("pointLights[1].diffuse", glm::vec3(1.0f));
+    testShader->SetVec3("pointLights[1].specular", glm::vec3(0.05f));
+    testShader->SetFloat("pointLights[1].constant", 1.0f);
+    testShader->SetFloat("pointLights[1].linear", 0.09f);
+    testShader->SetFloat("pointLights[1].quadratic", 0.032f);
+
+    testShader->SetVec3("pointLights[2].position", lightPositions[2]);
+    testShader->SetVec3("pointLights[2].ambient", glm::vec3(0.2f));
+    testShader->SetVec3("pointLights[2].diffuse", glm::vec3(1.0f));
+    testShader->SetVec3("pointLights[2].specular", glm::vec3(0.05f));
+    testShader->SetFloat("pointLights[2].constant", 1.0f);
+    testShader->SetFloat("pointLights[2].linear", 0.09f);
+    testShader->SetFloat("pointLights[2].quadratic", 0.032f);
+
+    testShader->SetVec3("pointLights[3].position", lightPositions[3]);
+    testShader->SetVec3("pointLights[3].ambient", glm::vec3(0.2f));
+    testShader->SetVec3("pointLights[3].diffuse", glm::vec3(1.0f));
+    testShader->SetVec3("pointLights[3].specular", glm::vec3(0.05f));
+    testShader->SetFloat("pointLights[3].constant", 1.0f);
+    testShader->SetFloat("pointLights[3].linear", 0.09f);
+    testShader->SetFloat("pointLights[3].quadratic", 0.032f);
 
     // Point light.
     // testShader->SetVec3("lght.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -171,15 +217,15 @@ int main()
     // testShader->SetFloat("lght.quadratic", 0.032f);
 
     // Spot light.
-    testShader->SetVec3("lght.position", camera->position);
-    testShader->SetVec3("lght.direction", camera->forward);
-    testShader->SetFloat("lght.cutoff", glm::cos(glm::radians(12.5f)));
-    testShader->SetFloat("lght.outer", glm::cos(glm::radians(17.5f)));
-    testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
-    testShader->SetVec3("lght.specular", glm::vec3(0.05f));
-    testShader->SetFloat("lght.constant", 1.0f);
-    testShader->SetFloat("lght.linear", 0.09f);
-    testShader->SetFloat("lght.quadratic", 0.032f);
+    // testShader->SetVec3("lght.position", camera->position);
+    // testShader->SetVec3("lght.direction", camera->forward);
+    // testShader->SetFloat("lght.cutoff", glm::cos(glm::radians(12.5f)));
+    // testShader->SetFloat("lght.outer", glm::cos(glm::radians(17.5f)));
+    // testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
+    // testShader->SetVec3("lght.specular", glm::vec3(0.05f));
+    // testShader->SetFloat("lght.constant", 1.0f);
+    // testShader->SetFloat("lght.linear", 0.09f);
+    // testShader->SetFloat("lght.quadratic", 0.032f);
 
     testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
     testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
@@ -215,7 +261,7 @@ int main()
         lightColor.x = sin(glfwGetTime() * 2.0f);
         lightColor.y = sin(glfwGetTime() * 0.32f);
         lightColor.z = sin(glfwGetTime() * 1.3f);
-        testShader->SetVec3("lght.ambient", 0.2f * lightColor);
+        testShader->SetVec3("dirLight.ambient", 0.2f * lightColor);
 
         testShader->UseTextures();
 
@@ -234,18 +280,33 @@ int main()
         }
 
         lightShader->UseShader();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
 
-        glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
-
         lightShader->SetVec3("color", lightColor);
-
         glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        for(int i = 0; i < 4; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        // glm::mat4 model = glm::mat4(1.0f);
+        // model = glm::translate(model, lightPos);
+        // model = glm::scale(model, glm::vec3(0.2f));
+
+        // glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
+        // glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
+        // glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
+
+        // lightShader->SetVec3("color", lightColor);
+
+        // glBindVertexArray(lightVAO);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
