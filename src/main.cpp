@@ -160,14 +160,26 @@ int main()
     testShader->SetInt("matr.specular", 1);
     testShader->SetFloat("matr.roughness", 2.0f);
 
-    testShader->SetVec3("lght.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    // Point light.
+    // testShader->SetVec3("lght.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    // testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
+    // testShader->SetVec3("lght.specular", glm::vec3(0.05f));
+    // testShader->SetVec3("lght.position", lightPos);
+    // testShader->SetVec3("lght.direction", glm::vec3(-0.2f, -1.0, -0.3f));
+    // testShader->SetFloat("lght.constant", 1.0f);
+    // testShader->SetFloat("lght.linear", 0.09f);
+    // testShader->SetFloat("lght.quadratic", 0.032f);
+
+    // Spot light.
+    testShader->SetVec3("lght.position", camera->position);
+    testShader->SetVec3("lght.direction", camera->forward);
+    testShader->SetFloat("lght.cutoff", glm::cos(glm::radians(12.5f)));
+    testShader->SetFloat("lght.outer", glm::cos(glm::radians(17.5f)));
     testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
     testShader->SetVec3("lght.specular", glm::vec3(0.05f));
-    testShader->SetVec3("lght.direction", glm::vec3(-0.2f, -1.0, -0.3f));
     testShader->SetFloat("lght.constant", 1.0f);
     testShader->SetFloat("lght.linear", 0.09f);
     testShader->SetFloat("lght.quadratic", 0.032f);
-    testShader->SetVec3("lightPos", lightPos);
 
     testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
     testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
@@ -190,6 +202,8 @@ int main()
         // Render lit objects.
         testShader->UseShader();
         testShader->SetVec3("viewPos", camera->position);
+        testShader->SetVec3("lght.position", camera->position);
+        testShader->SetVec3("lght.direction", camera->forward);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         view = camera->GetLookAt();
