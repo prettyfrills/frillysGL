@@ -54,29 +54,29 @@ unsigned int Shader::GetNormal()
     return uniNorm;
 }
 
-void Shader::SetBool(const std::string &name, bool value) const
+void Shader::SetBool(const char* name, bool value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+    glUniform1i(glGetUniformLocation(ID, name), (int)value);
 }
 
-void Shader::SetInt(const std::string &name, int value) const
+void Shader::SetInt(const char* name, int value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1i(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::SetFloat(const std::string &name, float value) const
+void Shader::SetFloat(const char* name, float value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1f(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::SetVec3(const std::string &name, float x, float y, float z)
+void Shader::SetVec3(const char* name, float x, float y, float z)
 {
-    glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
+    glUniform3f(glGetUniformLocation(ID, name), x, y, z);
 }
 
-void Shader::SetVec3(const std::string &name, glm::vec3 vector)
+void Shader::SetVec3(const char* name, glm::vec3 vector)
 {
-    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(vector));
+    glUniform3fv(glGetUniformLocation(ID, name), 1, glm::value_ptr(vector));
 }
 
 void Shader::CreateFromString(const char* vertexCode, const char* fragmentCode)

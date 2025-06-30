@@ -41,11 +41,11 @@ class Shader
     unsigned int GetProjection();
     unsigned int GetNormal();
 
-    void SetBool(const std::string &name, bool value) const;
-    void SetInt(const std::string &name, int value) const;
-    void SetFloat(const std::string &name, float value) const;
-    void SetVec3(const std::string &name, float x, float y, float z);
-    void SetVec3(const std::string &name, glm::vec3 vector);
+    void SetBool(const char* name, bool value) const;
+    void SetInt(const char* name, int value) const;
+    void SetFloat(const char* name, float value) const;
+    void SetVec3(const char* name, float x, float y, float z);
+    void SetVec3(const char* name, glm::vec3 vector);
 };
 
 #endif

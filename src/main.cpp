@@ -108,7 +108,6 @@ glm::vec3 lightPositions[] = {
 int main()
 {
     // Initialize glfw.
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -136,7 +135,6 @@ int main()
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
     // Create and bind buffers. Sends vertex data to the GPU.
-
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -168,12 +166,12 @@ int main()
     testShader->SetFloat("matr.roughness", 2.0f);
 
     // Directional light.
-    testShader->SetVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-    testShader->SetVec3("dirLight.ambient", glm::vec3(0.1f));
-    testShader->SetVec3("dirLight.diffuse", glm::vec3(0.5f));
-    testShader->SetVec3("dirLight.specular", glm::vec3(0.05f));
+    // testShader->SetVec3("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    // testShader->SetVec3("dirLight.ambient", glm::vec3(0.1f));
+    // testShader->SetVec3("dirLight.diffuse", glm::vec3(0.5f));
+    // testShader->SetVec3("dirLight.specular", glm::vec3(0.05f));
 
-    // Point lights.
+    // Multiple point lights.
     testShader->SetVec3("pointLights[0].position", lightPositions[0]);
     testShader->SetVec3("pointLights[0].ambient", glm::vec3(0.2f));
     testShader->SetVec3("pointLights[0].diffuse", glm::vec3(1.0f));
@@ -257,11 +255,12 @@ int main()
         glUniformMatrix4fv(testShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(testShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
 
-        glm::vec3 lightColor{};
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 0.32f);
-        lightColor.z = sin(glfwGetTime() * 1.3f);
-        testShader->SetVec3("dirLight.ambient", 0.2f * lightColor);
+        // Varying light color with time.
+        // glm::vec3 lightColor{};
+        // lightColor.x = sin(glfwGetTime() * 2.0f);
+        // lightColor.y = sin(glfwGetTime() * 0.32f);
+        // lightColor.z = sin(glfwGetTime() * 1.3f);
+        // testShader->SetVec3("dirLight.ambient", 0.2f * lightColor);
 
         testShader->UseTextures();
 
@@ -283,7 +282,7 @@ int main()
 
         glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
-        lightShader->SetVec3("color", lightColor);
+        lightShader->SetVec3("color", glm::vec3(1.0f));
         glBindVertexArray(lightVAO);
 
         for(int i = 0; i < 4; i++)
@@ -295,16 +294,14 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // Drawing a single light.
         // glm::mat4 model = glm::mat4(1.0f);
         // model = glm::translate(model, lightPos);
         // model = glm::scale(model, glm::vec3(0.2f));
-
         // glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
         // glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         // glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
-
-        // lightShader->SetVec3("color", lightColor);
-
+        // lightShader->SetVec3("color", glm::vec3(1.0f));
         // glBindVertexArray(lightVAO);
         // glDrawArrays(GL_TRIANGLES, 0, 36);
 

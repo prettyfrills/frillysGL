@@ -48,6 +48,7 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - fragPos);
 
+    // Get directional light component, then add light from all point lights.
     vec3 light = DirLighting(dirLight, norm, viewDir);
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
@@ -75,7 +76,7 @@ vec3 PointLighting(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-light.position, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), matr.roughness);
 
     float distance = length(light.position - fragPos);

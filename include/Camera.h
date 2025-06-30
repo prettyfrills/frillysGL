@@ -8,6 +8,7 @@ class Camera
     glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
     float moveSpeed = 2.0f;
 
+    // TODO: Make readonly.
     public:
     glm::vec3 position = glm::vec3(0.0f, 0.0f, -3.0f);
     glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
