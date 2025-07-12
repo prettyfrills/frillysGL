@@ -8,6 +8,11 @@
 #include <iostream>
 #include <vector>
 
+class Light;
+class DirectionalLight;
+class PointLight;
+class SpotLight;
+
 class Shader
 {
     private:
@@ -30,6 +35,11 @@ class Shader
     void CreateFromString(const char* vertexCode, const char* fragmentCode);
     void CreateFromFile(const char* vertexPath, const char* fragmentPath);
     void AddTexture(const char* texPath, int width, int height, int channels);
+
+    void AddDirectionalLight(DirectionalLight* light);
+    void AddPointLight(PointLight* light, int index);
+    void AddSpotLight(SpotLight* light);
+
     void UseShader();
     void UseTextures();
     void ClearShader();
@@ -46,6 +56,12 @@ class Shader
     void SetFloat(const char* name, float value) const;
     void SetVec3(const char* name, float x, float y, float z);
     void SetVec3(const char* name, glm::vec3 vector);
+
+    void SetBool(std::string, bool value) const;
+    void SetInt(std::string name, int value) const;
+    void SetFloat(std::string name, float value) const;
+    void SetVec3(std::string name, float x, float y, float z);
+    void SetVec3(std::string name, glm::vec3 vector);
 };
 
 #endif

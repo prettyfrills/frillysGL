@@ -1,6 +1,8 @@
 #include "Shader.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <cstring>
 #include "stb_image.h"
+#include "Lights.h"
 
 Shader::Shader()
 : ID(0)
@@ -28,6 +30,8 @@ void Shader::ClearShader()
         ID = 0;
     }
 }
+
+#pragma region Get/Set
 
 unsigned int Shader::GetID()
 {
@@ -78,6 +82,33 @@ void Shader::SetVec3(const char* name, glm::vec3 vector)
 {
     glUniform3fv(glGetUniformLocation(ID, name), 1, glm::value_ptr(vector));
 }
+
+void Shader::SetBool(std::string name, bool value) const
+{
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+}
+
+void Shader::SetInt(std::string name, int value) const
+{
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::SetFloat(std::string name, float value) const
+{
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::SetVec3(std::string name, float x, float y, float z)
+{
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
+}
+
+void Shader::SetVec3(std::string name, glm::vec3 vector)
+{
+    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(vector));
+}
+
+#pragma endregion Get/Set
 
 void Shader::CreateFromString(const char* vertexCode, const char* fragmentCode)
 {
@@ -149,13 +180,53 @@ void Shader::AddTexture(const char* texPath, int width, int height, int channels
     stbi_image_free(data);
 }
 
+void Shader::AddDirectionalLight(DirectionalLight* light)
+{
+    SetVec3("dirLight.direction", light->GetDirection());
+    SetVec3("dirLight.ambient", light->GetAmbient());
+    SetVec3("dirLight.diffuse", light->GetDiffuse());
+    SetVec3("dirLight.specular", light->GetSpecular());
+}
+
+void Shader::AddPointLight(PointLight* light, int index)
+{
+    std::string i = std::to_string(index);
+    std::string pos = "pointLights[" + i + "].position";
+    std::string amb = "pointLights[" + i + "].ambient";
+    std::string diff = "pointLights[" + i + "].diffuse";
+    std::string spec = "pointLights[" + i + "].specular";
+    std::string con = "pointLights[" + i + "].constant";
+    std::string lin = "pointLights[" + i + "].linear";
+    std::string quad = "pointLights[" + i + "].quadratic";
+
+    SetVec3(pos, light->GetPosition());
+    SetVec3(amb, light->GetAmbient());
+    SetVec3(diff, light->GetDiffuse());
+    SetVec3(spec, light->GetSpecular());
+    SetFloat(con, light->GetConstant());
+    SetFloat(lin, light->GetLinear());
+    SetFloat(quad, light->GetQuadratic());
+}
+
+void Shader::AddSpotLight(SpotLight* light)
+{
+    SetVec3("lght.position", light->GetPosition());
+    SetVec3("lght.direction", light->GetDirection());
+    SetFloat("lght.cutoff", glm::cos(glm::radians(light->GetInnerRadius())));
+    SetFloat("lght.outer", glm::cos(glm::radians(light->GetOuterRadius())));
+    SetVec3("lght.diffuse", light->GetDiffuse());
+    SetVec3("lght.specular", light->GetSpecular());
+    SetFloat("lght.constant", light->GetConstant());
+    SetFloat("lght.linear", light->GetLinear());
+    SetFloat("lght.quadratic", light->GetQuadratic());
+}
+
 void Shader::AddShader(GLuint program, const char* shaderContent, GLenum shaderType)
 {
     unsigned int shader = glCreateShader(shaderType);
     const char* shaderCode[1];
     shaderCode[0] = shaderContent;
     int shaderLen[1];
-    // shaderLen[0] = strlen(shaderContent);
 
     glShaderSource(shader, 1, shaderCode, NULL);
     glCompileShader(shader);
