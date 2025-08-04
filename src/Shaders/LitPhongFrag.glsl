@@ -27,7 +27,7 @@ uniform Material matr;
 uniform Light lght;
 
 vec3 ambient = matr.ambient * lght.ambient;
-vec3 norm = normalize(Normal);
+vec3 norm = normalize(Normal);  // frag norm.
 
 void main()
 {

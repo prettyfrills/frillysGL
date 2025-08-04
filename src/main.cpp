@@ -162,6 +162,8 @@ int main()
     testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightFrag.glsl");
     testShader->UseShader();
 
+    // TODO: Relocate texturing code from Shader class to mesh.
+    // Set texture indices and roughness.
     testShader->SetInt("matr.diffuse", 0);
     testShader->SetInt("matr.specular", 1);
     testShader->SetFloat("matr.roughness", 2.0f);
@@ -209,8 +211,10 @@ int main()
         // Render lit objects.
         testShader->UseShader();
         testShader->SetVec3("viewPos", camera->position);
-        // testShader->SetVec3("lght.position", camera->position);
+
+        // testShader->SetVec3("lght.position", camera->position);      // Spotlight.
         // testShader->SetVec3("lght.direction", camera->forward);
+
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         view = camera->GetLookAt();
@@ -249,17 +253,6 @@ int main()
             glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-        // Drawing a single light.
-        // glm::mat4 model = glm::mat4(1.0f);
-        // model = glm::translate(model, lightPos);
-        // model = glm::scale(model, glm::vec3(0.2f));
-        // glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
-        // glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
-        // glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
-        // lightShader->SetVec3("color", glm::vec3(1.0f));
-        // glBindVertexArray(lightVAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();

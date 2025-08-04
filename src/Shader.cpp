@@ -163,6 +163,7 @@ void Shader::AddTexture(const char* texPath, int width, int height, int channels
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
 
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(texPath, &width, &height, &channels, 3);
