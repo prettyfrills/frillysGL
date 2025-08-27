@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "stb_image.h"
 
+#include "Model.h"
 #include "Camera.h"
 #include "Shader.h"
 #include "Lights.h"
@@ -135,26 +136,28 @@ int main()
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
-    // Create and bind buffers. Sends vertex data to the GPU.
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(litTexCube), litTexCube, GL_STATIC_DRAW);
+    // // Create and bind buffers. Sends vertex data to the GPU.
+    // glGenVertexArrays(1, &VAO);
+    // glGenBuffers(1, &VBO);
+    // glGenBuffers(1, &EBO);
+    // glBindVertexArray(VAO);
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(litTexCube), litTexCube, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    // glEnableVertexAttribArray(0);
+    // glEnableVertexAttribArray(1);
+    // glEnableVertexAttribArray(2);
 
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    // glGenVertexArrays(1, &lightVAO);
+    // glBindVertexArray(lightVAO);
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    // glEnableVertexAttribArray(0);
+
+    Model* testModel = new Model(std::string("../res/Backpack/backpack.obj"));
 
     // Process shaders.
 
@@ -190,13 +193,13 @@ int main()
     // testShader->SetFloat("lght.linear", 0.09f);
     // testShader->SetFloat("lght.quadratic", 0.032f);
 
-    testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
-    testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
+    // testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
+    // testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
 
     Shader* lightShader = new Shader();
     lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/lightCubeFrag.glsl");
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -215,28 +218,34 @@ int main()
         // testShader->SetVec3("lght.position", camera->position);      // Spotlight.
         // testShader->SetVec3("lght.direction", camera->forward);
 
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat3 norm = glm::mat3(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
+
         view = camera->GetLookAt();
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
         glUniformMatrix4fv(testShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(testShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
 
         testShader->UseTextures();
+        testModel->Draw(*testShader);
 
-        glBindVertexArray(VAO);
-        for(int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            glm::mat3 norm = glm::mat3(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float rot = 20.0f * i;
-            model = glm::rotate(model, glm::radians(rot), glm::vec3(1.0f, 0.3f, 0.5f));
-            norm = glm::transpose(glm::inverse(model));
-            glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
-            glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        // glBindVertexArray(VAO);
+        // for(int i = 0; i < 10; i++)
+        // {
+        //     glm::mat4 model = glm::mat4(1.0f);
+        //     glm::mat3 norm = glm::mat3(1.0f);
+        //     model = glm::translate(model, cubePositions[i]);
+        //     float rot = 20.0f * i;
+        //     model = glm::rotate(model, glm::radians(rot), glm::vec3(1.0f, 0.3f, 0.5f));
+        //     norm = glm::transpose(glm::inverse(model));
+        //     glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
+        //     glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
+        //     glDrawArrays(GL_TRIANGLES, 0, 36);
+        // }
 
         lightShader->UseShader();
 

@@ -13,6 +13,7 @@
                 "-L./lib",
                 "src/*.cpp",
                 "src/glad.c",
+                "-lassimp",
                 "-lglfw3dll",
                 "-lopengl32",
                 "-lgdi32",
