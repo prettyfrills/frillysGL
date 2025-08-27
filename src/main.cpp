@@ -17,11 +17,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod);
 void ProcessInput(GLFWwindow* window);
 void ToggleMouseLock(GLFWwindow* window);
-
-// TODO: Refactor into mesh class.
-unsigned int VAO{};
-unsigned int VBO{};
-unsigned int EBO{};
+void ToggleWireframe();
 
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 Camera* camera = new Camera();
@@ -33,6 +29,7 @@ float deltaTime = 0.0f;
 float prevTime = 0.0f;
 float sensitivity = 0.1f;
 bool mouseFocused = false;
+bool wireframe = false;
 
 unsigned int lightVAO{};
 glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, -5.0f);
@@ -87,19 +84,6 @@ float litTexCube[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
-glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f), 
-    glm::vec3( 2.0f,  5.0f, -15.0f), 
-    glm::vec3(-1.5f, -2.2f, -2.5f),  
-    glm::vec3(-3.8f, -2.0f, -12.3f),  
-    glm::vec3( 2.4f, -0.4f, -3.5f),  
-    glm::vec3(-1.7f,  3.0f, -7.5f),  
-    glm::vec3( 1.3f, -2.0f, -2.5f),  
-    glm::vec3( 1.5f,  2.0f, -2.5f), 
-    glm::vec3( 1.5f,  0.2f, -1.5f), 
-    glm::vec3(-1.3f,  1.0f, -1.5f)  
-};
-
 glm::vec3 lightPositions[] = {
     glm::vec3( 0.7f,  0.2f,  2.0f),
     glm::vec3( 2.3f, -3.3f, -4.0f),
@@ -136,44 +120,14 @@ int main()
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
-    // // Create and bind buffers. Sends vertex data to the GPU.
-    // glGenVertexArrays(1, &VAO);
-    // glGenBuffers(1, &VBO);
-    // glGenBuffers(1, &EBO);
-    // glBindVertexArray(VAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(litTexCube), litTexCube, GL_STATIC_DRAW);
-    
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    // glEnableVertexAttribArray(0);
-    // glEnableVertexAttribArray(1);
-    // glEnableVertexAttribArray(2);
-
-    // glGenVertexArrays(1, &lightVAO);
-    // glBindVertexArray(lightVAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    // glEnableVertexAttribArray(0);
-
     Model* testModel = new Model(std::string("../res/Backpack/backpack.obj"));
 
     // Process shaders.
 
     Shader* testShader = new Shader();
-    testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightFrag.glsl");
+    testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightModelFrag.glsl");
     testShader->UseShader();
-
-    // TODO: Relocate texturing code from Shader class to mesh.
-    // Set texture indices and roughness.
-    testShader->SetInt("matr.diffuse", 0);
-    testShader->SetInt("matr.specular", 1);
     testShader->SetFloat("matr.roughness", 2.0f);
-
-    // Directional light.
-    // DirectionalLight* dirLight = new DirectionalLight(glm::vec3(0.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(0.05f), glm::vec3(-0.2f, -1.0f, -0.3f));
-    // testShader->AddDirectionalLight(dirLight);
 
     // Multiple point lights.
     for(int i = 0; i < 4; i++)
@@ -182,24 +136,10 @@ int main()
         testShader->AddPointLight(light, i);
     }
 
-    // Spot light.
-    // testShader->SetVec3("lght.position", camera->position);
-    // testShader->SetVec3("lght.direction", camera->forward);
-    // testShader->SetFloat("lght.cutoff", glm::cos(glm::radians(12.5f)));
-    // testShader->SetFloat("lght.outer", glm::cos(glm::radians(17.5f)));
-    // testShader->SetVec3("lght.diffuse", glm::vec3(1.0f));
-    // testShader->SetVec3("lght.specular", glm::vec3(0.05f));
-    // testShader->SetFloat("lght.constant", 1.0f);
-    // testShader->SetFloat("lght.linear", 0.09f);
-    // testShader->SetFloat("lght.quadratic", 0.032f);
-
-    // testShader->AddTexture("../res/Textures/container2.png", width, height, channels);
-    // testShader->AddTexture("../res/Textures/containerSpec.png", width, height, channels);
-
     Shader* lightShader = new Shader();
     lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/lightCubeFrag.glsl");
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -215,15 +155,12 @@ int main()
         testShader->UseShader();
         testShader->SetVec3("viewPos", camera->position);
 
-        // testShader->SetVec3("lght.position", camera->position);      // Spotlight.
-        // testShader->SetVec3("lght.direction", camera->forward);
-
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat3 norm = glm::mat3(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
-
         view = camera->GetLookAt();
+        norm = glm::transpose(glm::inverse(model));
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
@@ -233,22 +170,7 @@ int main()
         testShader->UseTextures();
         testModel->Draw(*testShader);
 
-        // glBindVertexArray(VAO);
-        // for(int i = 0; i < 10; i++)
-        // {
-        //     glm::mat4 model = glm::mat4(1.0f);
-        //     glm::mat3 norm = glm::mat3(1.0f);
-        //     model = glm::translate(model, cubePositions[i]);
-        //     float rot = 20.0f * i;
-        //     model = glm::rotate(model, glm::radians(rot), glm::vec3(1.0f, 0.3f, 0.5f));
-        //     norm = glm::transpose(glm::inverse(model));
-        //     glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
-        //     glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
-        //     glDrawArrays(GL_TRIANGLES, 0, 36);
-        // }
-
         lightShader->UseShader();
-
         glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
         lightShader->SetVec3("color", glm::vec3(1.0f));
@@ -266,10 +188,6 @@ int main()
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
     }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;
@@ -302,9 +220,10 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 {
     if(key == GLFW_KEY_F8 && action == GLFW_PRESS)
-    {
         ToggleMouseLock(window);
-    }
+
+    if(key == GLFW_KEY_Z && action == GLFW_PRESS)
+        ToggleWireframe();
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -329,6 +248,9 @@ void ProcessInput(GLFWwindow* window)
         velocity.y += 1.0f;
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
+    
+    // if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_KEY_DOWN)
+    //     ToggleWireframe();
 
     camera->Move(velocity * deltaTime);
 }
@@ -336,12 +258,19 @@ void ProcessInput(GLFWwindow* window)
 void ToggleMouseLock(GLFWwindow* window)
 {
     if(!mouseFocused)
-    {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        mouseFocused = true;
-        return;
-    }
+    else
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    mouseFocused = false;
+    mouseFocused = !mouseFocused;
+}
+
+void ToggleWireframe()
+{
+    if(!wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    wireframe = !wireframe;
 }

@@ -2,8 +2,13 @@
 #include "Shader.h"
 #include "glad/glad.h"
 
+Mesh::Mesh()
+{
+    
+}
+
 Mesh::Mesh(std::vector<Vertex> inVerts, std::vector<Texture> inTex, std::vector<unsigned int> inIndices)
-: vertices(inVerts), textures(inTex), indices(inIndices)
+    : vertices(inVerts), textures(inTex), indices(inIndices)
 {
     InitializeMesh();
 }
