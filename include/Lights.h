@@ -16,6 +16,7 @@ class Light
     glm::vec3 GetAmbient();
     glm::vec3 GetDiffuse();
     glm::vec3 GetSpecular();
+    void SetPosition(glm::vec3 newPos);
 };
 
 class DirectionalLight : public Light

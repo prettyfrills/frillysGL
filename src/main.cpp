@@ -12,7 +12,7 @@
 #include "Shader.h"
 #include "Lights.h"
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod);
 void ProcessInput(GLFWwindow* window);
@@ -30,59 +30,6 @@ float prevTime = 0.0f;
 float sensitivity = 0.1f;
 bool mouseFocused = false;
 bool wireframe = false;
-
-unsigned int lightVAO{};
-glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, -5.0f);
-
-// Texturing.
-int width{};
-int height{};
-int channels{};
-
-float litTexCube[] = {
-    // positions          // normals           // texture coords
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-};
 
 glm::vec3 lightPositions[] = {
     glm::vec3( 0.7f,  0.2f,  2.0f),
@@ -116,18 +63,22 @@ int main()
     }
 
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(mainWindow, framebufferSizeCallback);
+    glfwSetFramebufferSizeCallback(mainWindow, FramebufferSizeCallback);
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
+    // Make models.
     Model* testModel = new Model(std::string("../res/Backpack/backpack.obj"));
+    Model* lightModel = new Model(std::string("../res/Models/Cube/Cube.obj"));
 
     // Process shaders.
-
     Shader* testShader = new Shader();
     testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightModelFrag.glsl");
     testShader->UseShader();
     testShader->SetFloat("matr.roughness", 2.0f);
+
+    Shader* lightShader = new Shader();
+    lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/MultiLightModelFrag.glsl");
 
     // Multiple point lights.
     for(int i = 0; i < 4; i++)
@@ -136,15 +87,10 @@ int main()
         testShader->AddPointLight(light, i);
     }
 
-    Shader* lightShader = new Shader();
-    lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/lightCubeFrag.glsl");
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Render loop.
-
     while(!glfwWindowShouldClose(mainWindow))
     {
         ProcessInput(mainWindow);
@@ -162,27 +108,25 @@ int main()
         view = camera->GetLookAt();
         norm = glm::transpose(glm::inverse(model));
         projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        glUniformMatrix4fv(testShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix3fv(testShader->GetNormal(), 1, GL_FALSE, glm::value_ptr(norm));
-        glUniformMatrix4fv(testShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(testShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
+        testShader->SetModel(model);
+        testShader->SetNormal(norm);
+        testShader->SetView(view);
+        testShader->SetProjection(projection);
 
-        testShader->UseTextures();
         testModel->Draw(*testShader);
 
         lightShader->UseShader();
-        glUniformMatrix4fv(lightShader->GetView(), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(lightShader->GetProjection(), 1, GL_FALSE, glm::value_ptr(projection));
+        lightShader->SetView(view);
+        lightShader->SetProjection(projection);
         lightShader->SetVec3("color", glm::vec3(1.0f));
-        glBindVertexArray(lightVAO);
 
         for(int i = 0; i < 4; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, lightPositions[i]);
             model = glm::scale(model, glm::vec3(0.2f));
-            glUniformMatrix4fv(lightShader->GetModel(), 1, GL_FALSE, glm::value_ptr(model));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            lightShader->SetModel(model);
+            lightModel->Draw(*lightShader);
         }
 
         glfwSwapBuffers(mainWindow);
@@ -193,7 +137,7 @@ int main()
     return 0;
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
@@ -248,9 +192,6 @@ void ProcessInput(GLFWwindow* window)
         velocity.y += 1.0f;
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
-    
-    // if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_KEY_DOWN)
-    //     ToggleWireframe();
 
     camera->Move(velocity * deltaTime);
 }

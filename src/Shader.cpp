@@ -58,6 +58,26 @@ unsigned int Shader::GetNormal()
     return uniNorm;
 }
 
+void Shader::SetModel(glm::mat4 model)
+{
+    glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+}
+
+void Shader::SetView(glm::mat4 view)
+{
+    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+}
+
+void Shader::SetProjection(glm::mat4 projection)
+{
+    glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
+}
+
+void Shader::SetNormal(glm::mat3 norm)
+{
+    glUniformMatrix3fv(uniNorm, 1, GL_FALSE, glm::value_ptr(norm));
+}
+
 void Shader::SetBool(const char* name, bool value) const
 {
     glUniform1i(glGetUniformLocation(ID, name), (int)value);
@@ -276,7 +296,7 @@ void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
     if(!result)
     {
         glGetProgramInfoLog(ID, 512, NULL, errorLog);
-        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << errorLog << std::endl;
+        std::cerr << "ERROR::SHADER::PROGRAM::VALIDATION_FAILED\n" << errorLog << std::endl;
         return;
     }
 

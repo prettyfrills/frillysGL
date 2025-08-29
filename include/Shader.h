@@ -50,6 +50,10 @@ class Shader
     unsigned int GetView();
     unsigned int GetProjection();
     unsigned int GetNormal();
+    void SetModel(glm::mat4 model);
+    void SetView(glm::mat4 view);
+    void SetProjection(glm::mat4 projection);
+    void SetNormal(glm::mat3 norm);
 
     void SetBool(const char* name, bool value) const;
     void SetInt(const char* name, int value) const;

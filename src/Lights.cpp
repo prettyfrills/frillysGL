@@ -30,6 +30,11 @@ glm::vec3 Light::GetSpecular()
     return specular;
 }
 
+void Light::SetPosition(glm::vec3 newPos)
+{
+    position = newPos;
+}
+
 #pragma endregion Light
 
 #pragma region DirectionalLight
