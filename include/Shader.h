@@ -3,10 +3,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <fstream>
-#include <sstream>
 #include <iostream>
-#include <vector>
 
 class Light;
 class DirectionalLight;
@@ -22,7 +19,6 @@ class Shader
     unsigned int uniView{};
     unsigned int uniProjection{};
     unsigned int uniNorm{};
-    std::vector<unsigned int> textures;
 
     void AddShader(GLuint program, const char* shaderContent, GLenum shaderType);
     void CompileShader(const char* vertexCode, const char* fragmentCode);
@@ -34,14 +30,14 @@ class Shader
 
     void CreateFromString(const char* vertexCode, const char* fragmentCode);
     void CreateFromFile(const char* vertexPath, const char* fragmentPath);
-    void AddTexture(const char* texPath, int width, int height, int channels);
+    // void AddTexture(const char* texPath, int width, int height, int channels);
 
     void AddDirectionalLight(DirectionalLight* light);
     void AddPointLight(PointLight* light, int index);
     void AddSpotLight(SpotLight* light);
 
     void UseShader();
-    void UseTextures();
+    // void UseTextures();
     void ClearShader();
 
     // Uniform Utils.

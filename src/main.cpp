@@ -1,11 +1,8 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <math.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include "stb_image.h"
 
 #include "Model.h"
 #include "Camera.h"
@@ -19,7 +16,6 @@ void ProcessInput(GLFWwindow* window);
 void ToggleMouseLock(GLFWwindow* window);
 void ToggleWireframe();
 
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 Camera* camera = new Camera();
 
 // Input variables.
@@ -68,17 +64,17 @@ int main()
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
 
     // Make models.
-    Model* testModel = new Model(std::string("../res/Backpack/backpack.obj"));
-    Model* lightModel = new Model(std::string("../res/Models/Cube/Cube.obj"));
+    Model* testModel = new Model(std::string("res/Backpack/backpack.obj"));
+    Model* lightModel = new Model(std::string("res/Models/Cube/Cube.obj"));
 
     // Process shaders.
     Shader* testShader = new Shader();
-    testShader->CreateFromFile("Shaders/LitTexVert.glsl", "Shaders/MultiLightModelFrag.glsl");
+    testShader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
     testShader->UseShader();
     testShader->SetFloat("matr.roughness", 2.0f);
 
     Shader* lightShader = new Shader();
-    lightShader->CreateFromFile("Shaders/lightCubeVert.glsl", "Shaders/MultiLightModelFrag.glsl");
+    lightShader->CreateFromFile("src/Shaders/lightCubeVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
 
     // Multiple point lights.
     for(int i = 0; i < 4; i++)
