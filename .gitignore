@@ -31,5 +31,11 @@
 *.out
 *.app
 
-# code editor files
-.vscode/
+# Code editor files
+*.vscode/
+
+# Build files
+*.cache/
+*build/
+CMakeLists.txt
+compile_commands.json
