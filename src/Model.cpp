@@ -161,7 +161,7 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
         GLenum format{};
         if(channels == 1)
             format = GL_RED;
-        else if(channels = 3)
+        else if(channels == 3)
             format = GL_RGB;
         else if(channels == 4)
             format = GL_RGBA;

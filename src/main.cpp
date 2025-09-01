@@ -74,7 +74,7 @@ int main()
     testShader->SetFloat("matr.roughness", 2.0f);
 
     Shader* lightShader = new Shader();
-    lightShader->CreateFromFile("src/Shaders/lightCubeVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
+    lightShader->CreateFromFile("src/Shaders/lightCubeVert.glsl", "src/Shaders/UnlitTexFrag.glsl");
 
     // Multiple point lights.
     for(int i = 0; i < 4; i++)
@@ -84,6 +84,7 @@ int main()
     }
 
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Render loop.
