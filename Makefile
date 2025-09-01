@@ -8,8 +8,10 @@ LDLIBS = -lassimp -lglfw3dll -lopengl32 -lgdi32
 
 # Source files
 CPP_SRCS := $(wildcard src/*.cpp)
+IMG_SRCS := $(wildcard src/imgui/*.cpp)
+BCK_SRCS := $(wildcard src/imgui/backends/*.cpp)
 C_SRCS := src/glad.c
-SRCS := $(CPP_SRCS) $(C_SRCS)
+SRCS := $(CPP_SRCS) $(IMG_SRCS) $(BCK_SRCS) $(C_SRCS)
 
 # Output
 OUT = main.exe

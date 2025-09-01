@@ -4,6 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
+
 #include "Model.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -58,10 +62,19 @@ int main()
         return -1;
     }
 
-    glViewport(0, 0, 800, 600);
+    float mainScale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+    glViewport(0, 0, 800 * mainScale, 600 * mainScale);
     glfwSetFramebufferSizeCallback(mainWindow, FramebufferSizeCallback);
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
+
+    // Initialize ImGUI.
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
+    ImGui_ImplOpenGL3_Init();
 
     // Make models.
     Model* testModel = new Model(std::string("res/Backpack/backpack.obj"));
@@ -93,6 +106,12 @@ int main()
         ProcessInput(mainWindow);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Start ImGUI frame.
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
 
         // Render lit objects.
         testShader->UseShader();
@@ -126,10 +145,17 @@ int main()
             lightModel->Draw(*lightShader);
         }
 
+        // Render ImGUI UI.
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
