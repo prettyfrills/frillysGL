@@ -1,10 +1,10 @@
 #include "Model.h"
 #include "stb_image.h"
 
-// Model::Model(const char* directory)
-// {
-//     LoadModel(directory);
-// }
+Model::Model(const char* directory)
+{
+    LoadModel(directory);
+}
 
 Model::Model(std::string const &directory)
 {
@@ -15,6 +15,16 @@ Model::~Model()
 {
     // while(meshes.size() > 0)
     //     delete meshes[0];
+}
+
+int Model::GetVertices()
+{
+    return vertices;
+}
+
+int Model::GetFaces()
+{
+    return faces;
 }
 
 void Model::Draw(Shader& shader)
@@ -46,6 +56,8 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     for(int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        vertices += mesh->mNumVertices;
+        faces += mesh->mNumFaces;
         meshes.push_back(ProcessMesh(mesh, scene));
     }
     

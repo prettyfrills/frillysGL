@@ -1,0 +1,70 @@
+#include "Scenes/ModelViewer.h"
+#include "Model.h"
+#include "Shader.h"
+#include "Lights.h"
+#include "Camera.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+glm::vec3 lightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  5.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f)
+};
+
+ModelViewer::ModelViewer()
+{
+    //InitializeScene();
+}
+
+void ModelViewer::InitializeScene()
+{
+    camera = new Camera();
+    sceneModel = new Model("res/Backpack/backpack.obj");
+    shader = new Shader();
+    shader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
+    shader->UseShader();
+    shader->SetFloat("matr.roughness", 2.0f);
+    // TODO: Add lights to shader.
+    for(int i = 0; i < 4; i++)
+    {
+        PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
+        shader->AddPointLight(light, i);
+    }
+}
+
+void ModelViewer::DrawScene()
+{
+    shader->UseShader();
+    shader->SetVec3("viewPos", camera->position);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat3 norm = glm::mat3(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
+    // Draw primary model.
+    view = camera->GetLookAt();
+    norm = glm::transpose(glm::inverse(model));
+    projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    shader->SetModel(model);
+    shader->SetNormal(norm);
+    shader->SetView(view);
+    shader->SetProjection(projection);
+    sceneModel->Draw(*shader);
+
+    // Draw lights.
+
+}
+
+void ModelViewer::MoveCamera(glm::vec3 direction)
+{
+    camera->Move(direction);
+}
+
+void ModelViewer::RotateCamera(float x, float y)
+{
+    camera->Rotate(x, y);
+}

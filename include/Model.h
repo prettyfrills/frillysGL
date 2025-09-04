@@ -15,6 +15,8 @@ class Model
     std::vector<Texture> textures{};
     std::vector<Mesh> meshes{};
     std::string directory{};
+    int vertices{};
+    int faces{};
 
     void LoadModel(std::string const &directory);
     void ProcessNode(aiNode* node, const aiScene* scene);
@@ -23,10 +25,13 @@ class Model
     unsigned int TextureFromFile(const char* path, const std::string& directory);
 
     public:
-    // Model(const char* directory);
+    Model(const char* directory);
     Model(std::string const &directory);
     ~Model();
     void Draw(Shader& shader);
+
+    int GetVertices();
+    int GetFaces();
 };
 
 #endif

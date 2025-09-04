@@ -1,16 +1,17 @@
-#include "Scene.h"
-#include "Model.h"
+#include "Scenes/Scene.h"
 
-void Scene::AddModel(std::string path)
+void Scene::InitializeScene()
 {
-    Model* model = new Model("path");
-    models.push_back(model);
+    // Load models, create shaders, initialize rendering order.
+    // Should be overwritten by scene classes which inherit from this one.
 }
 
-void Scene::DrawScene(Shader& shader)
+void Scene::DrawScene()
 {
-    for(Model* model : models)
-    {
-        model->Draw(shader);
-    }
+    // Should be overwritten by scene classes which inherit from this one.
+}
+
+void Scene::MoveCamera(glm::vec3 direction)
+{
+    // Should be overwritten by scene classes which inherit from this one.
 }

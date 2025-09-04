@@ -13,14 +13,18 @@
 #include "Shader.h"
 #include "Lights.h"
 
+#include "Scenes/ModelViewer.h"
+
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod);
 void ProcessInput(GLFWwindow* window);
+void DrawUtilsMenu();
 void ToggleMouseLock(GLFWwindow* window);
 void ToggleWireframe();
 
-Camera* camera = new Camera();
+int windowWidth = 1600;
+int windowHeight = 1200;
 
 // Input variables.
 float lastX = 400.0f;
@@ -31,12 +35,21 @@ float sensitivity = 0.1f;
 bool mouseFocused = false;
 bool wireframe = false;
 
-glm::vec3 lightPositions[] = {
-    glm::vec3( 0.7f,  0.2f,  2.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f)
-};
+// Debug utils.
+float FPS{};
+int modelFaces{};
+int modelVertices{};
+
+// glm::vec3 lightPositions[] = {
+//     glm::vec3( 0.7f,  0.2f,  2.0f),
+//     glm::vec3( 2.3f, -3.3f, -4.0f),
+//     glm::vec3(-4.0f,  2.0f, -12.0f),
+//     glm::vec3( 0.0f,  0.0f, -3.0f)
+// };
+
+// TODO: Fix paths when loading model and shader from scene class.
+// Camera* camera = new Camera();
+ModelViewer* testScene = new ModelViewer();
 
 int main()
 {
@@ -46,7 +59,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* mainWindow = glfwCreateWindow(800, 600, "FrillysGL", NULL, NULL);
+    GLFWwindow* mainWindow = glfwCreateWindow(windowWidth, windowHeight, "FrillysGL", NULL, NULL);
     if(!mainWindow)
     {
         std::cerr << "Failed to create glfw window. Aborting." << std::endl;
@@ -63,7 +76,7 @@ int main()
     }
 
     float mainScale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-    glViewport(0, 0, 800 * mainScale, 600 * mainScale);
+    glViewport(0, 0, windowWidth * mainScale, windowHeight * mainScale);
     glfwSetFramebufferSizeCallback(mainWindow, FramebufferSizeCallback);
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
     glfwSetKeyCallback(mainWindow, KeyDownCallback);
@@ -77,8 +90,12 @@ int main()
     ImGui_ImplOpenGL3_Init();
 
     // Make models.
+    testScene->InitializeScene();
     Model* testModel = new Model(std::string("res/Backpack/backpack.obj"));
     Model* lightModel = new Model(std::string("res/Models/Cube/Cube.obj"));
+
+    modelFaces = testModel->GetFaces();
+    modelVertices = testModel->GetVertices();
 
     // Process shaders.
     Shader* testShader = new Shader();
@@ -90,11 +107,11 @@ int main()
     lightShader->CreateFromFile("src/Shaders/lightCubeVert.glsl", "src/Shaders/UnlitTexFrag.glsl");
 
     // Multiple point lights.
-    for(int i = 0; i < 4; i++)
-    {
-        PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
-        testShader->AddPointLight(light, i);
-    }
+    // for(int i = 0; i < 4; i++)
+    // {
+    //     PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
+    //     testShader->AddPointLight(light, i);
+    // }
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -111,39 +128,43 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+
+        DrawUtilsMenu();
 
         // Render lit objects.
-        testShader->UseShader();
-        testShader->SetVec3("viewPos", camera->position);
+        // testShader->UseShader();
+        // testShader->SetVec3("viewPos", camera->position);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat3 norm = glm::mat3(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-        view = camera->GetLookAt();
-        norm = glm::transpose(glm::inverse(model));
-        projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        testShader->SetModel(model);
-        testShader->SetNormal(norm);
-        testShader->SetView(view);
-        testShader->SetProjection(projection);
+        // glm::mat4 model = glm::mat4(1.0f);
+        // glm::mat3 norm = glm::mat3(1.0f);
+        // glm::mat4 view = glm::mat4(1.0f);
+        // glm::mat4 projection = glm::mat4(1.0f);
+        // view = camera->GetLookAt();
+        // norm = glm::transpose(glm::inverse(model));
+        // projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        // testShader->SetModel(model);
+        // testShader->SetNormal(norm);
+        // testShader->SetView(view);
+        // testShader->SetProjection(projection);
 
-        testModel->Draw(*testShader);
+        // testModel->Draw(*testShader);
 
-        lightShader->UseShader();
-        lightShader->SetView(view);
-        lightShader->SetProjection(projection);
-        lightShader->SetVec3("color", glm::vec3(1.0f));
+        testScene->DrawScene();
 
-        for(int i = 0; i < 4; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, lightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.2f));
-            lightShader->SetModel(model);
-            lightModel->Draw(*lightShader);
-        }
+        // Render lights.
+        // lightShader->UseShader();
+        // lightShader->SetView(view);
+        // lightShader->SetProjection(projection);
+        // lightShader->SetVec3("color", glm::vec3(1.0f));
+
+        // for(int i = 0; i < 4; i++)
+        // {
+        //     glm::mat4 model = glm::mat4(1.0f);
+        //     model = glm::translate(model, lightPositions[i]);
+        //     model = glm::scale(model, glm::vec3(0.2f));
+        //     lightShader->SetModel(model);
+        //     lightModel->Draw(*lightShader);
+        // }
 
         // Render ImGUI UI.
         ImGui::Render();
@@ -181,7 +202,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
-    camera->Rotate(xOffset, yOffset);
+    testScene->RotateCamera(xOffset, yOffset);
+    // camera->Rotate(xOffset, yOffset);
 }
 
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -216,7 +238,23 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    camera->Move(velocity * deltaTime);
+    testScene->MoveCamera(velocity * deltaTime);
+    // camera->Move(velocity * deltaTime);
+}
+
+void DrawUtilsMenu()
+{
+    FPS = 1 / deltaTime;
+    ImGui::Begin("Stats");
+    ImGui::Text("Frame rate (FPS): %f", FPS);
+    ImGui::Text("Time between frames: %f", deltaTime);
+
+    ImGui::Text("Model:");
+    ImGui::Text("Faces: %d", modelFaces);
+    ImGui::Text("Vertices: %d", modelVertices);
+    // TODO: Display vertex count. Display face count.
+
+    ImGui::End();
 }
 
 void ToggleMouseLock(GLFWwindow* window)
