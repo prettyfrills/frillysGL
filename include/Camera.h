@@ -5,7 +5,7 @@
 class Camera
 {
     private:
-    glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    const glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
     float moveSpeed = 2.0f;
 
     // TODO: Make readonly.

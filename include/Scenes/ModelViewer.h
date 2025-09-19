@@ -8,15 +8,21 @@ class Shader;
 
 class ModelViewer : public Scene
 {
-    public:
-    Model* sceneModel;
-    Shader* shader;
+    private:
+    Model* sceneModel{};
+    Shader* shader{};
+    int vertices{};
+    int faces{};
 
+    public:
     ModelViewer();
     void InitializeScene();
     void DrawScene();
     void MoveCamera(glm::vec3 direction);
     void RotateCamera(float x, float y);
+
+    int GetVertices();
+    int GetFaces();
 };
 
 #endif

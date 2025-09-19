@@ -135,6 +135,7 @@ std::vector<Texture> Model::LoadTextures(aiMaterial* material, aiTextureType tex
         material->GetTexture(textureType, i, &str);
         bool skip = false;
 
+        // If texture is already loaded, skip loading.
         for(int j = 0; j < textures.size(); j++)
         {
             if(std::strcmp(textures[j].path.data(), str.C_Str()) == 0)
@@ -188,7 +189,7 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
     }
     else
-        std::cout << "Texture failed to load at path: " << path << std::endl;
+        std::cout << "Texture failed to load from path: " << path << std::endl;
 
     stbi_image_free(data);
     return textureID;

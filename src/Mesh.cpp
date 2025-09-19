@@ -61,7 +61,7 @@ void Mesh::Draw(Shader& shader)
         shader.SetInt("matr." + name + number, i);
         glBindTexture(GL_TEXTURE_2D, textures[i].ID);
     }
-    glActiveTexture(GL_TEXTURE0);
+    // glActiveTexture(GL_TEXTURE0);
 
     // Draw mesh.
     glBindVertexArray(VAO);

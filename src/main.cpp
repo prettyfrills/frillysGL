@@ -1,17 +1,10 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
-
-#include "Model.h"
-#include "Camera.h"
-#include "Shader.h"
-#include "Lights.h"
 
 #include "Scenes/ModelViewer.h"
 
@@ -40,15 +33,6 @@ float FPS{};
 int modelFaces{};
 int modelVertices{};
 
-// glm::vec3 lightPositions[] = {
-//     glm::vec3( 0.7f,  0.2f,  2.0f),
-//     glm::vec3( 2.3f, -3.3f, -4.0f),
-//     glm::vec3(-4.0f,  2.0f, -12.0f),
-//     glm::vec3( 0.0f,  0.0f, -3.0f)
-// };
-
-// TODO: Fix paths when loading model and shader from scene class.
-// Camera* camera = new Camera();
 ModelViewer* testScene = new ModelViewer();
 
 int main()
@@ -89,29 +73,10 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
     ImGui_ImplOpenGL3_Init();
 
-    // Make models.
+    // Make scene.
     testScene->InitializeScene();
-    Model* testModel = new Model(std::string("res/Backpack/backpack.obj"));
-    Model* lightModel = new Model(std::string("res/Models/Cube/Cube.obj"));
-
-    modelFaces = testModel->GetFaces();
-    modelVertices = testModel->GetVertices();
-
-    // Process shaders.
-    Shader* testShader = new Shader();
-    testShader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
-    testShader->UseShader();
-    testShader->SetFloat("matr.roughness", 2.0f);
-
-    Shader* lightShader = new Shader();
-    lightShader->CreateFromFile("src/Shaders/lightCubeVert.glsl", "src/Shaders/UnlitTexFrag.glsl");
-
-    // Multiple point lights.
-    // for(int i = 0; i < 4; i++)
-    // {
-    //     PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
-    //     testShader->AddPointLight(light, i);
-    // }
+    modelFaces = testScene->GetFaces();
+    modelVertices = testScene->GetVertices();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -130,41 +95,7 @@ int main()
         ImGui::NewFrame();
 
         DrawUtilsMenu();
-
-        // Render lit objects.
-        // testShader->UseShader();
-        // testShader->SetVec3("viewPos", camera->position);
-
-        // glm::mat4 model = glm::mat4(1.0f);
-        // glm::mat3 norm = glm::mat3(1.0f);
-        // glm::mat4 view = glm::mat4(1.0f);
-        // glm::mat4 projection = glm::mat4(1.0f);
-        // view = camera->GetLookAt();
-        // norm = glm::transpose(glm::inverse(model));
-        // projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        // testShader->SetModel(model);
-        // testShader->SetNormal(norm);
-        // testShader->SetView(view);
-        // testShader->SetProjection(projection);
-
-        // testModel->Draw(*testShader);
-
         testScene->DrawScene();
-
-        // Render lights.
-        // lightShader->UseShader();
-        // lightShader->SetView(view);
-        // lightShader->SetProjection(projection);
-        // lightShader->SetVec3("color", glm::vec3(1.0f));
-
-        // for(int i = 0; i < 4; i++)
-        // {
-        //     glm::mat4 model = glm::mat4(1.0f);
-        //     model = glm::translate(model, lightPositions[i]);
-        //     model = glm::scale(model, glm::vec3(0.2f));
-        //     lightShader->SetModel(model);
-        //     lightModel->Draw(*lightShader);
-        // }
 
         // Render ImGUI UI.
         ImGui::Render();

@@ -24,10 +24,12 @@ void ModelViewer::InitializeScene()
     camera = new Camera();
     sceneModel = new Model("res/Backpack/backpack.obj");
     shader = new Shader();
-    shader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
+    // shader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
+    shader->CreateFromFile("src/Shaders/MultiLightTex.glsl");
     shader->UseShader();
     shader->SetFloat("matr.roughness", 2.0f);
-    // TODO: Add lights to shader.
+
+    // Add lights to shader.
     for(int i = 0; i < 4; i++)
     {
         PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
@@ -56,7 +58,19 @@ void ModelViewer::DrawScene()
     sceneModel->Draw(*shader);
 
     // Draw lights.
+    // lightShader->UseShader();
+    // lightShader->SetView(view);
+    // lightShader->SetProjection(projection);
+    // lightShader->SetVec3("color", glm::vec3(1.0f));
 
+    // for(int i = 0; i < 4; i++)
+    // {
+    //     glm::mat4 model = glm::mat4(1.0f);
+    //     model = glm::translate(model, lightPositions[i]);
+    //     model = glm::scale(model, glm::vec3(0.2f));
+    //     lightShader->SetModel(model);
+    //     lightModel->Draw(*lightShader);
+    // }
 }
 
 void ModelViewer::MoveCamera(glm::vec3 direction)
@@ -67,4 +81,14 @@ void ModelViewer::MoveCamera(glm::vec3 direction)
 void ModelViewer::RotateCamera(float x, float y)
 {
     camera->Rotate(x, y);
+}
+
+int ModelViewer::GetVertices()
+{
+    return sceneModel->GetVertices();
+}
+
+int ModelViewer::GetFaces()
+{
+    return sceneModel->GetFaces();
 }
