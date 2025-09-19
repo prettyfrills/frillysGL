@@ -24,8 +24,7 @@ void ModelViewer::InitializeScene()
     camera = new Camera();
     sceneModel = new Model("res/Backpack/backpack.obj");
     shader = new Shader();
-    // shader->CreateFromFile("src/Shaders/LitTexVert.glsl", "src/Shaders/MultiLightModelFrag.glsl");
-    shader->CreateFromFile("src/Shaders/MultiLightTex.glsl");
+    shader->CreateFromFile("src/Shaders/DepthVis.glsl");
     shader->UseShader();
     shader->SetFloat("matr.roughness", 2.0f);
 
