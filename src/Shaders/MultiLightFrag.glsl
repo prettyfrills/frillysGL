@@ -34,7 +34,6 @@ in vec3 fragPos;
 in vec2 texCoord;
 out vec4 FragColor;
 
-uniform sampler2D tex1;
 uniform vec3 viewPos;
 uniform Material matr;
 uniform DirectionalLight dirLight;

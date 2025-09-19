@@ -30,14 +30,13 @@ class Shader
 
     void CreateFromString(const char* vertexCode, const char* fragmentCode);
     void CreateFromFile(const char* vertexPath, const char* fragmentPath);
-    // void AddTexture(const char* texPath, int width, int height, int channels);
+    void CreateFromFile(const char* path);
 
     void AddDirectionalLight(DirectionalLight* light);
     void AddPointLight(PointLight* light, int index);
     void AddSpotLight(SpotLight* light);
 
     void UseShader();
-    // void UseTextures();
     void ClearShader();
 
     // Uniform Utils.

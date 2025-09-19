@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include "Lights.h"
 
 Shader::Shader()
@@ -125,6 +126,42 @@ void Shader::SetVec3(std::string name, glm::vec3 vector)
 void Shader::CreateFromString(const char* vertexCode, const char* fragmentCode)
 {
     CompileShader(vertexCode, fragmentCode);
+}
+
+void Shader::CreateFromFile(const char* path)
+{
+    std::string vertCode{};
+    std::string fragCode{};
+    std::ifstream fileStream(path, std::ios::in);
+    std::string codeLine{};
+
+    if(!fileStream)
+    {
+        std::cerr << "Failed to read shader file. Aborting." << std::endl;
+        return;
+    }
+
+    bool writeFrag = false;
+    while(!fileStream.eof())
+    {
+        std::getline(fileStream, codeLine);
+        if(codeLine == "--Vertex--")
+            continue;
+        if(codeLine == "--Fragment--")
+        {
+            writeFrag = true;
+            continue;
+        }
+
+        if(!writeFrag)
+            vertCode.append(codeLine + '\n');
+        else
+            fragCode.append(codeLine + '\n');
+    }
+
+    const char* cVert = vertCode.c_str();
+    const char* cFrag = fragCode.c_str();
+    CompileShader(cVert, cFrag);
 }
 
 void Shader::CreateFromFile(const char* vertexPath, const char* fragmentPath)
