@@ -1,8 +1,9 @@
 #include "Shader.h"
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 #include <cstring>
 #include <fstream>
-#include <sstream>
+//#include <sstream>
 #include <string>
 #include "Lights.h"
 

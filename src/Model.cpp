@@ -1,5 +1,6 @@
 #include "Model.h"
 #include "stb_image.h"
+#include <iostream>
 
 Model::Model(const char* directory)
 {

@@ -3,7 +3,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <iostream>
+#include <string>
 
 class Light;
 class DirectionalLight;

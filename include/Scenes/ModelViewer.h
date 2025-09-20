@@ -11,8 +11,12 @@ class ModelViewer : public Scene
     private:
     Model* sceneModel{};
     Shader* shader{};
+    Shader* stencil{};
+
+    float lineThickness = 1.05f;
     int vertices{};
     int faces{};
+    
 
     public:
     ModelViewer();

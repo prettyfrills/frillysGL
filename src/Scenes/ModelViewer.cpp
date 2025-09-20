@@ -3,6 +3,8 @@
 #include "Shader.h"
 #include "Lights.h"
 #include "Camera.h"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/fwd.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,7 +26,11 @@ void ModelViewer::InitializeScene()
     camera = new Camera();
     sceneModel = new Model("res/Backpack/backpack.obj");
     shader = new Shader();
-    shader->CreateFromFile("src/Shaders/DepthVis.glsl");
+    stencil = new Shader();
+    shader->CreateFromFile("src/Shaders/MultiLightTex.glsl");
+    stencil->CreateFromFile("src/Shaders/Outline.glsl");
+    stencil->UseShader();
+    stencil->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
     shader->UseShader();
     shader->SetFloat("matr.roughness", 2.0f);
 
@@ -38,6 +44,12 @@ void ModelViewer::InitializeScene()
 
 void ModelViewer::DrawScene()
 {
+    // Configure stencil buffer.
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);    // Enable writing to stencil buffer.
+
     shader->UseShader();
     shader->SetVec3("viewPos", camera->position);
 
@@ -55,6 +67,22 @@ void ModelViewer::DrawScene()
     shader->SetView(view);
     shader->SetProjection(projection);
     sceneModel->Draw(*shader);
+
+    // Draw outline.
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);    // Disable writing to the stencil buffer.
+    glDisable(GL_DEPTH_TEST);
+    stencil->UseShader();
+    model = glm::scale(model, glm::vec3(lineThickness));
+    stencil->SetModel(model);
+    stencil->SetNormal(norm);
+    stencil->SetView(view);
+    stencil->SetProjection(projection);
+    sceneModel->Draw(*stencil);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
+
 
     // Draw lights.
     // lightShader->UseShader();
