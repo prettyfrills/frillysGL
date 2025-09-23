@@ -126,6 +126,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(vertices, textures, indices);
 }
 
+// REVIEW THIS FUNCTION.
 std::vector<Texture> Model::LoadTextures(aiMaterial* material, aiTextureType textureType, std::string typeName)
 {
     std::vector<Texture> texList{};
@@ -154,6 +155,7 @@ std::vector<Texture> Model::LoadTextures(aiMaterial* material, aiTextureType tex
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
+            texList.push_back(texture);
         }
     }
 
@@ -190,7 +192,7 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
     }
     else
-        std::cout << "Texture failed to load from path: " << path << std::endl;
+        std::cerr << "Texture failed to load from path: " << path << std::endl;
 
     stbi_image_free(data);
     return textureID;

@@ -53,9 +53,9 @@ struct PointLight
 
 const int nPointLights = 4;
 
-in vec3 Normal;
-in vec3 fragPos;
 in vec2 texCoord;
+in vec3 fragPos;
+in vec3 Normal;
 
 uniform vec3 viewPos;
 uniform DirectionalLight dirLight;
@@ -98,10 +98,10 @@ vec3 PointLighting(PointLight light, vec3 fragPos, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
-    float distance = length(light.position - fragPos);
-    float attenuation = 1 / ((light.constant) + (light.linear * distance) + (light.quadratic * (distance * distance)));
     float diff = max(dot(normal, lightDir), 0.0);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), matr.roughness);
+    float distance = length(light.position - fragPos);
+    float attenuation = 1 / ((light.constant) + (light.linear * distance) + (light.quadratic * (distance * distance)));
 
     vec3 ambient = light.ambient * vec3(texture(matr.texture_diffuse1, texCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(matr.texture_diffuse1, texCoord));

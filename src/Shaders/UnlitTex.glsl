@@ -1,7 +1,7 @@
 --Vertex--
 #version 330 core
-layout (location = 0) vec3 aPos;
-layout (location = 1) vec3 aTexCoord;
+layout (location = 0) in vec3 aPos;
+layout (location = 2) in vec2 aTexCoord;
 out vec2 texCoord;
 
 uniform mat4 model;
@@ -19,7 +19,7 @@ void main()
 
 struct Material
 {
-    sampler2D texture1;
+    sampler2D texture_diffuse1;
     sampler2D texture2;
 };
 
@@ -30,5 +30,5 @@ uniform Material matr;
 
 void main()
 {
-    FragColor = mix(texture(matr.texture1, texCoord), texture(matr.texture2, texCoord), 1.0);
+    FragColor = mix(texture(matr.texture_diffuse1, texCoord), texture(matr.texture2, texCoord), 1.0);
 }

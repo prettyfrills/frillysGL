@@ -1,8 +1,8 @@
 #include "Scenes/ModelViewer.h"
 #include "Model.h"
-#include "Shader.h"
 #include "Lights.h"
 #include "Camera.h"
+#include "Shader.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 
@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 glm::vec3 lightPositions[] = {
-    glm::vec3( 0.7f,  0.2f,  5.0f),
+    glm::vec3( 0.7f,  0.2f,  3.0f),
     glm::vec3( 2.3f, -3.3f, -4.0f),
     glm::vec3(-4.0f,  2.0f, -12.0f),
     glm::vec3( 0.0f,  0.0f, -3.0f)
@@ -25,12 +25,14 @@ void ModelViewer::InitializeScene()
 {
     camera = new Camera();
     sceneModel = new Model("res/Backpack/backpack.obj");
-    shader = new Shader();
+
     stencil = new Shader();
-    shader->CreateFromFile("src/Shaders/MultiLightTex.glsl");
     stencil->CreateFromFile("src/Shaders/Outline.glsl");
     stencil->UseShader();
     stencil->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
+
+    shader = new Shader();
+    shader->CreateFromFile("src/Shaders/LitTransparent.glsl");
     shader->UseShader();
     shader->SetFloat("matr.roughness", 32.0f);
 
@@ -40,6 +42,10 @@ void ModelViewer::InitializeScene()
         PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
         shader->AddPointLight(light, i);
     }
+
+    lightModel = new Model("res/Models/Cube/Cube.obj");
+    light = new Shader();
+    light->CreateFromFile("src/Shaders/UnlitTex.glsl");
 }
 
 void ModelViewer::DrawScene()
@@ -68,6 +74,21 @@ void ModelViewer::DrawScene()
     shader->SetProjection(projection);
     sceneModel->Draw(*shader);
 
+    // Draw lights.
+    light->UseShader();
+    light->SetView(view);
+    light->SetProjection(projection);
+    // light->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
+
+    for(int i = 0; i < 4; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPositions[i]);
+        model = glm::scale(model, glm::vec3(0.2f));
+        light->SetModel(model);
+        lightModel->Draw(*light);
+    }
+
     if(!drawOutline)
         return;
 
@@ -85,22 +106,6 @@ void ModelViewer::DrawScene()
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glEnable(GL_DEPTH_TEST);
-
-
-    // Draw lights.
-    // lightShader->UseShader();
-    // lightShader->SetView(view);
-    // lightShader->SetProjection(projection);
-    // lightShader->SetVec3("color", glm::vec3(1.0f));
-
-    // for(int i = 0; i < 4; i++)
-    // {
-    //     glm::mat4 model = glm::mat4(1.0f);
-    //     model = glm::translate(model, lightPositions[i]);
-    //     model = glm::scale(model, glm::vec3(0.2f));
-    //     lightShader->SetModel(model);
-    //     lightModel->Draw(*lightShader);
-    // }
 }
 
 void ModelViewer::MoveCamera(glm::vec3 direction)

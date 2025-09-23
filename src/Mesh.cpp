@@ -47,6 +47,7 @@ void Mesh::Draw(Shader& shader)
 
     for(int i = 0; i < textures.size(); i++)
     {
+
         glActiveTexture(GL_TEXTURE0 + i);
 
         // Get N from texture name.
@@ -61,10 +62,10 @@ void Mesh::Draw(Shader& shader)
         shader.SetInt("matr." + name + number, i);
         glBindTexture(GL_TEXTURE_2D, textures[i].ID);
     }
-    // glActiveTexture(GL_TEXTURE0);
 
     // Draw mesh.
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
