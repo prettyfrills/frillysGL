@@ -32,7 +32,7 @@ void ModelViewer::InitializeScene()
     stencil->UseShader();
     stencil->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
     shader->UseShader();
-    shader->SetFloat("matr.roughness", 2.0f);
+    shader->SetFloat("matr.roughness", 32.0f);
 
     // Add lights to shader.
     for(int i = 0; i < 4; i++)
@@ -67,6 +67,9 @@ void ModelViewer::DrawScene()
     shader->SetView(view);
     shader->SetProjection(projection);
     sceneModel->Draw(*shader);
+
+    if(!drawOutline)
+        return;
 
     // Draw outline.
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);

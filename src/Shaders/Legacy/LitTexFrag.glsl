@@ -71,7 +71,7 @@ void main()
     vec3 diffuse = lght.diffuse * diff * vec3(texture(matr.diffuse, texCoord));
 
     vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 reflectDir = reflect(-lght.position, norm);
+    vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), matr.roughness);
     vec3 specular = lght.specular * spec * vec3(texture(matr.specular, texCoord));
 

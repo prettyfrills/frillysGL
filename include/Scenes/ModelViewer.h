@@ -17,6 +17,7 @@ class ModelViewer : public Scene
     int vertices{};
     int faces{};
     
+    bool drawOutline = false;
 
     public:
     ModelViewer();

@@ -26,7 +26,7 @@ void main()
 
     vec3 lightDir = normalize(lightPos - vertPos);
     vec3 viewDir = normalize(viewPos - vertPos);
-    vec3 reflectDir = reflect(-lightPos, normal);
+    vec3 reflectDir = reflect(-lightDir, normal);
 
     float diff = max(dot(normal, lightDir), 0);
     float spec = max(dot(viewDir, reflectDir), 0);

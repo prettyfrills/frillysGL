@@ -97,7 +97,7 @@ vec3 DirLighting(DirectionalLight light, vec3 normal, vec3 viewDir)
 vec3 PointLighting(PointLight light, vec3 fragPos, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
-    vec3 reflectDir = reflect(-light.position, normal);
+    vec3 reflectDir = reflect(-lightDir, normal);
     float distance = length(light.position - fragPos);
     float attenuation = 1 / ((light.constant) + (light.linear * distance) + (light.quadratic * (distance * distance)));
     float diff = max(dot(normal, lightDir), 0.0);
