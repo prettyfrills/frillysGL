@@ -46,6 +46,8 @@ void ModelViewer::InitializeScene()
     lightModel = new Model("res/Models/Cube/Cube.obj");
     light = new Shader();
     light->CreateFromFile("src/Shaders/UnlitTex.glsl");
+
+    grassModel = new Model("res/Models/Grass/Grass.obj", false);
 }
 
 void ModelViewer::DrawScene()
@@ -87,6 +89,17 @@ void ModelViewer::DrawScene()
         model = glm::scale(model, glm::vec3(0.2f));
         light->SetModel(model);
         lightModel->Draw(*light);
+    }
+
+    // Draw grass.
+    shader->UseShader();
+
+    for(glm::vec3 pos : lightPositions)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, pos);
+        shader->SetModel(model);
+        grassModel->Draw(*shader);
     }
 
     if(!drawOutline)

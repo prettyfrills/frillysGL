@@ -15,6 +15,7 @@ class Model
     std::vector<Texture> textures{};
     std::vector<Mesh> meshes{};
     std::string directory{};
+    bool flipped{};
     int vertices{};
     int faces{};
 
@@ -25,8 +26,8 @@ class Model
     unsigned int TextureFromFile(const char* path, const std::string& directory);
 
     public:
-    Model(const char* directory);
-    Model(std::string const &directory);
+    Model(const char* directory, bool flipTexture = true);
+    Model(std::string const &directory, bool flipTexture = true);
     ~Model();
     void Draw(Shader& shader);
 

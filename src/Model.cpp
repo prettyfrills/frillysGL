@@ -1,13 +1,16 @@
 #include "Model.h"
+#include "Shader.h"
 #include "stb_image.h"
 #include <iostream>
 
-Model::Model(const char* directory)
+Model::Model(const char* directory, bool flipTexture)
+: flipped(flipTexture)
 {
     LoadModel(directory);
 }
 
-Model::Model(std::string const &directory)
+Model::Model(std::string const &directory, bool flipTexture)
+: flipped(flipTexture)
 {
     LoadModel(directory);
 }
@@ -126,7 +129,6 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(vertices, textures, indices);
 }
 
-// REVIEW THIS FUNCTION.
 std::vector<Texture> Model::LoadTextures(aiMaterial* material, aiTextureType textureType, std::string typeName)
 {
     std::vector<Texture> texList{};
@@ -170,7 +172,12 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
     glGenTextures(1, &textureID);
 
     int width, height, channels;
-    stbi_set_flip_vertically_on_load(true);
+
+    if(flipped)
+        stbi_set_flip_vertically_on_load(true);
+    else
+        stbi_set_flip_vertically_on_load(false);
+
     unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &channels, 0);
     if(data)
     {
@@ -185,8 +192,8 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
