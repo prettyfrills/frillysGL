@@ -131,6 +131,11 @@ void ModelViewer::RotateCamera(float x, float y)
     camera->Rotate(x, y);
 }
 
+void ModelViewer::Outline(bool enabled)
+{
+    drawOutline = enabled;
+}
+
 int ModelViewer::GetVertices()
 {
     return sceneModel->GetVertices();

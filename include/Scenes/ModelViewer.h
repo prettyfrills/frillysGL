@@ -28,6 +28,7 @@ class ModelViewer : public Scene
     void DrawScene();
     void MoveCamera(glm::vec3 direction);
     void RotateCamera(float x, float y);
+    void Outline(bool enabled);
 
     int GetVertices();
     int GetFaces();
