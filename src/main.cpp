@@ -6,7 +6,8 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
-#include "Scenes/ModelViewer.h"
+// #include "Scenes/ModelViewer.h"
+#include "Scenes/FunctionGraph.h"
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
@@ -33,7 +34,8 @@ float FPS{};
 int modelFaces{};
 int modelVertices{};
 
-ModelViewer* testScene = new ModelViewer();
+// ModelViewer* testScene = new ModelViewer();
+FunctionGraph* graph = new FunctionGraph();
 
 int main()
 {
@@ -59,7 +61,7 @@ int main()
         return -1;
     }
 
-    float mainScale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+    const float mainScale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
     glViewport(0, 0, windowWidth * mainScale, windowHeight * mainScale);
     glfwSetFramebufferSizeCallback(mainWindow, FramebufferSizeCallback);
     glfwSetCursorPosCallback(mainWindow, MouseCallback);
@@ -74,16 +76,21 @@ int main()
     ImGui_ImplOpenGL3_Init();
 
     // Make scene.
-    testScene->InitializeScene();
-    modelFaces = testScene->GetFaces();
-    modelVertices = testScene->GetVertices();
+    // testScene->InitializeScene();
+    // modelFaces = testScene->GetFaces();
+    // modelVertices = testScene->GetVertices();
 
+    graph->InitializeScene();
+
+    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // Enable features.
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glEnable(GL_BLEND);
 
     // Render loop.
     while(!glfwWindowShouldClose(mainWindow))
@@ -98,7 +105,9 @@ int main()
         ImGui::NewFrame();
 
         DrawUtilsMenu();
-        testScene->DrawScene();
+        graph->SetTime(glfwGetTime());
+        graph->DrawScene();
+        // testScene->DrawScene();
 
         // Render ImGUI UI.
         ImGui::Render();
@@ -136,7 +145,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
-    testScene->RotateCamera(xOffset, yOffset);
+    graph->RotateCamera(xOffset, yOffset);
+    // testScene->RotateCamera(xOffset, yOffset);
     // camera->Rotate(xOffset, yOffset);
 }
 
@@ -172,7 +182,8 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    testScene->MoveCamera(velocity * deltaTime);
+    graph->MoveCamera(velocity * deltaTime);
+    // testScene->MoveCamera(velocity * deltaTime);
     // camera->Move(velocity * deltaTime);
 }
 
@@ -183,10 +194,9 @@ void DrawUtilsMenu()
     ImGui::Text("Frame rate (FPS): %f", FPS);
     ImGui::Text("Time between frames: %f", deltaTime);
 
-    ImGui::Text("Model:");
-    ImGui::Text("Faces: %d", modelFaces);
-    ImGui::Text("Vertices: %d", modelVertices);
-    // TODO: Display vertex count. Display face count.
+    // ImGui::Text("Model:");
+    // ImGui::Text("Faces: %d", modelFaces);
+    // ImGui::Text("Vertices: %d", modelVertices);
 
     ImGui::End();
 }
