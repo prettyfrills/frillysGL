@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
@@ -26,15 +25,13 @@ float lastY = 300.0f;
 float deltaTime = 0.0f;
 float prevTime = 0.0f;
 float sensitivity = 0.1f;
-bool mouseFocused = false;
+bool mouseFocused = true;
 bool wireframe = false;
 
 // Debug utils.
 float FPS{};
 int modelFaces{};
 int modelVertices{};
-std::string selectedFunc = "Wave";
-std::string funcs[] = {"Wave", "Multiwave", "Ripple"};
 
 // ModelViewer* testScene = new ModelViewer();
 FunctionGraph* graph = new FunctionGraph();
@@ -79,9 +76,6 @@ int main()
 
     // Make scene.
     // testScene->InitializeScene();
-    // modelFaces = testScene->GetFaces();
-    // modelVertices = testScene->GetVertices();
-
     graph->InitializeScene();
 
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -107,9 +101,10 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        DrawUtilsMenu();
+        // testScene->SetDeltaTime(deltaTime);
         graph->SetTime(glfwGetTime());
         graph->DrawScene();
+        graph->DrawMenu();
         // testScene->DrawScene();
 
         // Render ImGUI UI.
@@ -138,7 +133,6 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     {
         lastX = xPos;
         lastY = yPos;
-        mouseFocused = true;
     }
 
     float xOffset = xPos - lastX;
@@ -148,9 +142,9 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
+    if(mouseFocused)
     graph->RotateCamera(xOffset, yOffset);
     // testScene->RotateCamera(xOffset, yOffset);
-    // camera->Rotate(xOffset, yOffset);
 }
 
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -187,38 +181,6 @@ void ProcessInput(GLFWwindow* window)
 
     graph->MoveCamera(velocity * deltaTime);
     // testScene->MoveCamera(velocity * deltaTime);
-    // camera->Move(velocity * deltaTime);
-}
-
-void DrawUtilsMenu()
-{
-    FPS = 1 / deltaTime;
-    ImGui::Begin("Stats");
-    ImGui::Text("Frame rate (FPS): %f", FPS);
-    ImGui::Text("Time between frames: %f", deltaTime);
-
-    if(ImGui::BeginCombo("Function", selectedFunc.c_str()))
-    {
-        for(int i = 0; i < IM_ARRAYSIZE(funcs); i++)
-        {
-            bool isSelected = (selectedFunc == funcs[i]);
-            if(ImGui::Selectable(funcs[i].c_str(), isSelected))
-            {
-                selectedFunc = funcs[i];
-                graph->ChangeFunction(selectedFunc);
-            }
-            if(isSelected)
-                ImGui::SetItemDefaultFocus();
-        }
-
-        ImGui::EndCombo();
-    }
-
-    // ImGui::Text("Model:");
-    // ImGui::Text("Faces: %d", modelFaces);
-    // ImGui::Text("Vertices: %d", modelVertices);
-
-    ImGui::End();
 }
 
 void ToggleMouseLock(GLFWwindow* window)

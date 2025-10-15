@@ -3,9 +3,12 @@
 #include "Camera.h"
 
 #include <cmath>
-// #include <cstdlib>
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+
+#include "imgui/imgui.h"
+
+std::string funcs[] = {"Wave", "Multiwave", "Ripple"};
 
 #pragma region FunctionLibrary
 
@@ -65,6 +68,7 @@ float FunctionLibrary::GetResult(float x, float t, float speed)
 FunctionGraph::FunctionGraph()
 {
     funclib = new FunctionLibrary();
+    selectedFunc = funcs[0].c_str();
 }
 
 void FunctionGraph::InitializeScene()
@@ -110,6 +114,30 @@ void FunctionGraph::DrawScene()
         shader->SetModel(model);
         pointModel->Draw(*shader);
     }
+}
+
+void FunctionGraph::DrawMenu()
+{
+    ImGui::Begin("Function Graph");
+
+    if(ImGui::BeginCombo("Function", selectedFunc))
+    {
+        for(int i = 0; i < IM_ARRAYSIZE(funcs); i++)
+        {
+            bool isSelected = (selectedFunc == funcs[i]);
+            if(ImGui::Selectable(funcs[i].c_str(), isSelected))
+            {
+                selectedFunc = funcs[i].c_str();
+                ChangeFunction(selectedFunc);
+            }
+            if(isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::End();
 }
 
 void FunctionGraph::MoveCamera(glm::vec3 direction)

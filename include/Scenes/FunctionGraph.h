@@ -28,6 +28,7 @@ class FunctionGraph : public Scene
 {
     private:
     FunctionLibrary* funclib{};
+    const char* selectedFunc{};
     Model* pointModel{};
     Shader* shader{};
     int resolution{};
@@ -40,6 +41,7 @@ class FunctionGraph : public Scene
     FunctionGraph();
     void InitializeScene();
     void DrawScene();
+    void DrawMenu();
     void MoveCamera(glm::vec3 direction);
     void RotateCamera(float x, float y);
     void SetTime(float t);

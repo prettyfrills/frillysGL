@@ -3,11 +3,9 @@
 #include "Lights.h"
 #include "Camera.h"
 #include "Shader.h"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/fwd.hpp"
 
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "imgui/imgui.h"
 
 glm::vec3 lightPositions[] = {
     glm::vec3( 0.7f,  0.2f,  3.0f),
@@ -121,6 +119,16 @@ void ModelViewer::DrawScene()
     glEnable(GL_DEPTH_TEST);
 }
 
+void ModelViewer::DrawMenu()
+{
+    ImGui::Begin("Stats");
+    ImGui::Text("FPS: %f", FPS);
+    ImGui::Text("Time between frames: %f", deltaTime);
+
+    ImGui::Text("Faces: %d", faces);
+    ImGui::Text("Vertices: %d", vertices);
+}
+
 void ModelViewer::MoveCamera(glm::vec3 direction)
 {
     camera->Move(direction);
@@ -144,4 +152,9 @@ int ModelViewer::GetVertices()
 int ModelViewer::GetFaces()
 {
     return sceneModel->GetFaces();
+}
+
+void ModelViewer::SetDeltaTime(float delta)
+{
+    deltaTime = delta;
 }
