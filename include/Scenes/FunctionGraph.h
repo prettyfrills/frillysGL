@@ -3,18 +3,12 @@
 
 #include "Scene.h"
 #include <functional>
+#include <string>
 
 class Model;
 class Shader;
 
 typedef std::function<float (float, float, float)> libfunc;
-
-enum shape
-{
-    WAVE,
-    MULTIWAVE,
-    RIPPLE
-};
 
 class FunctionLibrary
 {
@@ -23,7 +17,7 @@ class FunctionLibrary
 
     public:
     FunctionLibrary();
-    void SwitchFunction(shape inShape);
+    void SwitchFunction(std::string inShape);
     static float Wave(float x, float t, float speed);
     static float Multiwave(float x, float t, float speed);
     static float Ripple(float x, float t, float speed);
@@ -49,6 +43,7 @@ class FunctionGraph : public Scene
     void MoveCamera(glm::vec3 direction);
     void RotateCamera(float x, float y);
     void SetTime(float t);
+    void ChangeFunction(std::string inVal);
 };
 
 #endif

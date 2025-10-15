@@ -3,7 +3,7 @@
 #include "Camera.h"
 
 #include <cmath>
-#include <cstdlib>
+// #include <cstdlib>
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
 
@@ -11,7 +11,7 @@
 
 FunctionLibrary::FunctionLibrary()
 {
-    currentFunction = Ripple;
+    currentFunction = Wave;
 }
 
 float FunctionLibrary::Wave(float x, float t, float speed)
@@ -33,21 +33,22 @@ float FunctionLibrary::Ripple(float x, float t, float speed)
     return y;
 }
 
-void FunctionLibrary::SwitchFunction(shape inShape)
+void FunctionLibrary::SwitchFunction(std::string inShape)
 {
-    switch(inShape)
+    if(inShape == "Wave")
     {
-        case WAVE:
         currentFunction = Wave;
-        break;
-
-        case MULTIWAVE:
+        return;
+    }
+    if(inShape == "Multiwave")
+    {
         currentFunction = Multiwave;
-        break;
-
-        case RIPPLE:
+        return;
+    }
+    if(inShape == "Ripple")
+    {
         currentFunction = Ripple;
-        break;
+        return;
     }
 }
 
@@ -124,4 +125,9 @@ void FunctionGraph::RotateCamera(float x, float y)
 void FunctionGraph::SetTime(float t)
 {
     time = t;
+}
+
+void FunctionGraph::ChangeFunction(std::string inVal)
+{
+    funclib->SwitchFunction(inVal);
 }

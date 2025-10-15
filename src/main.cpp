@@ -33,6 +33,8 @@ bool wireframe = false;
 float FPS{};
 int modelFaces{};
 int modelVertices{};
+std::string selectedFunc = "Wave";
+std::string funcs[] = {"Wave", "Multiwave", "Ripple"};
 
 // ModelViewer* testScene = new ModelViewer();
 FunctionGraph* graph = new FunctionGraph();
@@ -91,6 +93,7 @@ int main()
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Render loop.
     while(!glfwWindowShouldClose(mainWindow))
@@ -193,6 +196,23 @@ void DrawUtilsMenu()
     ImGui::Begin("Stats");
     ImGui::Text("Frame rate (FPS): %f", FPS);
     ImGui::Text("Time between frames: %f", deltaTime);
+
+    if(ImGui::BeginCombo("Function", selectedFunc.c_str()))
+    {
+        for(int i = 0; i < IM_ARRAYSIZE(funcs); i++)
+        {
+            bool isSelected = (selectedFunc == funcs[i]);
+            if(ImGui::Selectable(funcs[i].c_str(), isSelected))
+            {
+                selectedFunc = funcs[i];
+                graph->ChangeFunction(selectedFunc);
+            }
+            if(isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
 
     // ImGui::Text("Model:");
     // ImGui::Text("Faces: %d", modelFaces);
