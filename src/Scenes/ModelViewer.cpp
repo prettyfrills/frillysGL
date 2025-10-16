@@ -30,7 +30,7 @@ void ModelViewer::InitializeScene()
     stencil->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
 
     shader = new Shader();
-    shader->CreateFromFile("src/Shaders/LitTransparent.glsl");
+    shader->CreateFromFile("src/Shaders/LitTexPhong.glsl");
     shader->UseShader();
     shader->SetFloat("matr.roughness", 32.0f);
 
@@ -43,9 +43,9 @@ void ModelViewer::InitializeScene()
 
     lightModel = new Model("res/Models/Cube/Cube.obj");
     light = new Shader();
-    light->CreateFromFile("src/Shaders/UnlitTex.glsl");
+    light->CreateFromFile("src/Shaders/UnlitFlat.glsl");
 
-    grassModel = new Model("res/Models/Grass/Grass.obj", false);
+    grassModel = new Model("res/Models/Window/Window.obj", false);
 }
 
 void ModelViewer::DrawScene()
@@ -78,7 +78,7 @@ void ModelViewer::DrawScene()
     light->UseShader();
     light->SetView(view);
     light->SetProjection(projection);
-    // light->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
+    light->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
 
     for(int i = 0; i < 4; i++)
     {
@@ -127,6 +127,7 @@ void ModelViewer::DrawMenu()
 
     ImGui::Text("Faces: %d", faces);
     ImGui::Text("Vertices: %d", vertices);
+    ImGui::End();
 }
 
 void ModelViewer::MoveCamera(glm::vec3 direction)
@@ -157,4 +158,5 @@ int ModelViewer::GetFaces()
 void ModelViewer::SetDeltaTime(float delta)
 {
     deltaTime = delta;
+    FPS = 1 / delta;
 }

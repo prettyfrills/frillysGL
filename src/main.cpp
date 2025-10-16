@@ -5,8 +5,8 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
-// #include "Scenes/ModelViewer.h"
-#include "Scenes/FunctionGraph.h"
+#include "Scenes/ModelViewer.h"
+// #include "Scenes/FunctionGraph.h"
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
@@ -33,8 +33,8 @@ float FPS{};
 int modelFaces{};
 int modelVertices{};
 
-// ModelViewer* testScene = new ModelViewer();
-FunctionGraph* graph = new FunctionGraph();
+ModelViewer* testScene = new ModelViewer();
+// FunctionGraph* graph = new FunctionGraph();
 
 int main()
 {
@@ -75,8 +75,8 @@ int main()
     ImGui_ImplOpenGL3_Init();
 
     // Make scene.
-    // testScene->InitializeScene();
-    graph->InitializeScene();
+    testScene->InitializeScene();
+    // graph->InitializeScene();
 
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -101,11 +101,12 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // testScene->SetDeltaTime(deltaTime);
-        graph->SetTime(glfwGetTime());
-        graph->DrawScene();
-        graph->DrawMenu();
-        // testScene->DrawScene();
+        testScene->SetDeltaTime(deltaTime);
+        testScene->DrawScene();
+        testScene->DrawMenu();
+        // graph->SetTime(glfwGetTime());
+        // graph->DrawScene();
+        // graph->DrawMenu();
 
         // Render ImGUI UI.
         ImGui::Render();
@@ -143,8 +144,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     yOffset *= sensitivity;
 
     if(mouseFocused)
-    graph->RotateCamera(xOffset, yOffset);
-    // testScene->RotateCamera(xOffset, yOffset);
+    // graph->RotateCamera(xOffset, yOffset);
+    testScene->RotateCamera(xOffset, yOffset);
 }
 
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -179,8 +180,8 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    graph->MoveCamera(velocity * deltaTime);
-    // testScene->MoveCamera(velocity * deltaTime);
+    // graph->MoveCamera(velocity * deltaTime);
+    testScene->MoveCamera(velocity * deltaTime);
 }
 
 void ToggleMouseLock(GLFWwindow* window)
