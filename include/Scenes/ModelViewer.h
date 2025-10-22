@@ -11,7 +11,7 @@ class ModelViewer : public Scene
     private:
     Model* sceneModel{};
     Model* lightModel{};
-    Model* grassModel{};
+    Model* glassModel{};
     Shader* shader{};
     Shader* stencil{};
     Shader* light{};

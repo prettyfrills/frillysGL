@@ -8,10 +8,10 @@
 #include "imgui/imgui.h"
 
 glm::vec3 lightPositions[] = {
-    glm::vec3( 0.7f,  0.2f,  3.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f)
+    glm::vec3( 0.7f,  0.2f,  -2.0f),
+    glm::vec3( 0.0f, 0.0f, 0.3f),
+    glm::vec3( 0.0f,  1.0f, -12.0f),
+    glm::vec3(1.0f,  2.0f, -12.0f)
 };
 
 ModelViewer::ModelViewer()
@@ -23,6 +23,7 @@ void ModelViewer::InitializeScene()
 {
     camera = new Camera();
     sceneModel = new Model("res/Backpack/backpack.obj");
+    glassModel = new Model("res/Models/Window/Window.obj", false);
 
     stencil = new Shader();
     stencil->CreateFromFile("src/Shaders/Outline.glsl");
@@ -37,15 +38,16 @@ void ModelViewer::InitializeScene()
     // Add lights to shader.
     for(int i = 0; i < 4; i++)
     {
-        PointLight* light = new PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
-        shader->AddPointLight(light, i);
+        PointLight light = PointLight(lightPositions[i], glm::vec3(0.2f), glm::vec3(1.0f), glm::vec3(0.05f), 1.0f, 0.09f, 0.032f);
+        shader->AddPointLight(&light, i);
     }
 
     lightModel = new Model("res/Models/Cube/Cube.obj");
     light = new Shader();
     light->CreateFromFile("src/Shaders/UnlitFlat.glsl");
 
-    grassModel = new Model("res/Models/Window/Window.obj", false);
+    faces = sceneModel->GetFaces();
+    vertices = sceneModel->GetVertices();
 }
 
 void ModelViewer::DrawScene()
@@ -74,6 +76,22 @@ void ModelViewer::DrawScene()
     shader->SetProjection(projection);
     sceneModel->Draw(*shader);
 
+    // Draw bonus models.
+    /*  Note:
+        When using planes, light will not interact with the back face unless corrected in the shader.
+    */
+
+    for(int i = 0; i < 4; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat3 norm = glm::mat3(1.0f);
+        model = glm::translate(model, lightPositions[i]);
+        norm = glm::transpose(glm::inverse(model));
+        shader->SetModel(model);
+        shader->SetNormal(norm);
+        glassModel->Draw(*shader);
+    }
+
     // Draw lights.
     light->UseShader();
     light->SetView(view);
@@ -87,17 +105,6 @@ void ModelViewer::DrawScene()
         model = glm::scale(model, glm::vec3(0.2f));
         light->SetModel(model);
         lightModel->Draw(*light);
-    }
-
-    // Draw grass.
-    shader->UseShader();
-
-    for(glm::vec3 pos : lightPositions)
-    {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, pos);
-        shader->SetModel(model);
-        grassModel->Draw(*shader);
     }
 
     if(!drawOutline)
