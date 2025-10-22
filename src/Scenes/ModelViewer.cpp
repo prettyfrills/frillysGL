@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Shader.h"
 
+#include <map>
 #include <glm/gtc/matrix_transform.hpp>
 #include "imgui/imgui.h"
 
@@ -76,22 +77,6 @@ void ModelViewer::DrawScene()
     shader->SetProjection(projection);
     sceneModel->Draw(*shader);
 
-    // Draw bonus models.
-    /*  Note:
-        When using planes, light will not interact with the back face unless corrected in the shader.
-    */
-
-    for(int i = 0; i < 4; i++)
-    {
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat3 norm = glm::mat3(1.0f);
-        model = glm::translate(model, lightPositions[i]);
-        norm = glm::transpose(glm::inverse(model));
-        shader->SetModel(model);
-        shader->SetNormal(norm);
-        glassModel->Draw(*shader);
-    }
-
     // Draw lights.
     light->UseShader();
     light->SetView(view);
@@ -105,6 +90,30 @@ void ModelViewer::DrawScene()
         model = glm::scale(model, glm::vec3(0.2f));
         light->SetModel(model);
         lightModel->Draw(*light);
+    }
+
+    // Draw transparent models.
+    /*  Note:
+        When using planes, light will not interact with the back face unless corrected in the shader.
+    */
+
+    std::map<float, glm::vec3> sorted{};
+    for(int i = 0; i < (sizeof(lightPositions) / sizeof(glm::vec3)); i++)
+    {
+        float distance = glm::length(camera->position - lightPositions[i]);
+        sorted[distance] = lightPositions[i];
+    }
+
+    shader->UseShader();
+    for(std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+    {
+        glm::mat4 model(1.0f);
+        glm::mat3 norm(1.0f);
+        model = glm::translate(model, it->second);
+        norm = glm::transpose(glm::inverse(model));
+        shader->SetModel(model);
+        shader->SetNormal(norm);
+        glassModel->Draw(*shader);
     }
 
     if(!drawOutline)
