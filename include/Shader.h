@@ -49,6 +49,7 @@ class Shader
     void SetView(glm::mat4 view);
     void SetProjection(glm::mat4 projection);
     void SetNormal(glm::mat3 norm);
+    void SetTransformation(glm::mat4 model, glm::mat3 norm, glm::mat4 view, glm::mat4 projection);
 
     void SetBool(const char* name, bool value) const;
     void SetInt(const char* name, int value) const;

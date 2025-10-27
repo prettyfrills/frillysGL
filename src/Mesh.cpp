@@ -47,7 +47,6 @@ void Mesh::Draw(Shader& shader)
 
     for(int i = 0; i < textures.size(); i++)
     {
-
         glActiveTexture(GL_TEXTURE0 + i);
 
         // Get N from texture name.

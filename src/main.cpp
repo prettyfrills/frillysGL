@@ -6,7 +6,7 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include "Scenes/ModelViewer.h"
-// #include "Scenes/FunctionGraph.h"
+#include "Shader.h"
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
@@ -19,6 +19,17 @@ void ToggleWireframe();
 int windowWidth = 1600;
 int windowHeight = 1200;
 
+float quadVertices[] = {  
+    // positions               // texCoords
+    -1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+
+    -1.0f,  1.0f,  0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f, 1.0f
+};	
+
 // Input variables.
 float lastX = 400.0f;
 float lastY = 300.0f;
@@ -28,13 +39,7 @@ float sensitivity = 0.1f;
 bool mouseFocused = true;
 bool wireframe = false;
 
-// Debug utils.
-float FPS{};
-int modelFaces{};
-int modelVertices{};
-
 ModelViewer* testScene = new ModelViewer();
-// FunctionGraph* graph = new FunctionGraph();
 
 int main()
 {
@@ -76,7 +81,6 @@ int main()
 
     // Make scene.
     testScene->InitializeScene();
-    // graph->InitializeScene();
 
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -89,24 +93,81 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Framebuffer.
+    unsigned int framebuffer{};
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+    // Generate texture.
+    unsigned int colorTex{};
+    glGenTextures(1, &colorTex);
+    glBindTexture(GL_TEXTURE_2D, colorTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, windowWidth, windowHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
+
+    // Create render buffer for depth and stencil framebuffer.
+    unsigned int renderObj{};
+    glGenRenderbuffers(1, &renderObj);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderObj);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderObj);
+
+    // Finalize.
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER != GL_FRAMEBUFFER_COMPLETE))
+        std::cerr << "ERROR::FRAMEBUFFER: Framebuffer incomplete." << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Draw quad.
+    unsigned int vao{};
+    unsigned int vbo{};
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);   // pos.
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); // texcoord.
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
+
+    Shader* fbShader = new Shader();
+    fbShader->CreateFromFile("src/Shaders/Framebuffer.glsl");
+    fbShader->UseShader();
+    fbShader->SetInt("screenTex", 0);
+
     // Render loop.
     while(!glfwWindowShouldClose(mainWindow))
     {
         ProcessInput(mainWindow);
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
         // Start ImGUI frame.
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // First pass.
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+
         testScene->SetDeltaTime(deltaTime);
         testScene->DrawScene();
         testScene->DrawMenu();
-        // graph->SetTime(glfwGetTime());
-        // graph->DrawScene();
-        // graph->DrawMenu();
+
+        // Draw framebuffer quad.
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        fbShader->UseShader();
+        glBindVertexArray(vao);
+        glDisable(GL_DEPTH_TEST);
+        glBindTexture(GL_TEXTURE_2D, colorTex);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // Render ImGUI UI.
         ImGui::Render();
@@ -116,6 +177,7 @@ int main()
         glfwPollEvents();
     }
 
+    glDeleteFramebuffers(1, &framebuffer);
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -144,7 +206,6 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     yOffset *= sensitivity;
 
     if(mouseFocused)
-    // graph->RotateCamera(xOffset, yOffset);
     testScene->RotateCamera(xOffset, yOffset);
 }
 
@@ -180,7 +241,6 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    // graph->MoveCamera(velocity * deltaTime);
     testScene->MoveCamera(velocity * deltaTime);
 }
 

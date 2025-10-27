@@ -71,6 +71,14 @@ void Shader::SetNormal(glm::mat3 norm)
     glUniformMatrix3fv(uniNorm, 1, GL_FALSE, glm::value_ptr(norm));
 }
 
+void Shader::SetTransformation(glm::mat4 model, glm::mat3 norm, glm::mat4 view, glm::mat4 projection)
+{
+    SetModel(model);
+    SetNormal(norm);
+    SetView(view);
+    SetProjection(projection);
+}
+
 void Shader::SetBool(const char* name, bool value) const
 {
     glUniform1i(glGetUniformLocation(ID, name), (int)value);

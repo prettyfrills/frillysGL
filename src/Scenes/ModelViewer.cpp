@@ -71,10 +71,7 @@ void ModelViewer::DrawScene()
     view = camera->GetLookAt();
     norm = glm::transpose(glm::inverse(model));
     projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    shader->SetModel(model);
-    shader->SetNormal(norm);
-    shader->SetView(view);
-    shader->SetProjection(projection);
+    shader->SetTransformation(model, norm, view, projection);
     sceneModel->Draw(*shader);
 
     // Draw lights.
