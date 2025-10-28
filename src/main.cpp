@@ -121,7 +121,7 @@ int main()
         std::cerr << "ERROR::FRAMEBUFFER: Framebuffer incomplete." << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Draw quad.
+    // Create quad.
     unsigned int vao{};
     unsigned int vbo{};
     glGenVertexArrays(1, &vao);
@@ -136,7 +136,7 @@ int main()
     glBindVertexArray(0);
 
     Shader* fbShader = new Shader();
-    fbShader->CreateFromFile("src/Shaders/Framebuffer.glsl");
+    fbShader->CreateFromFile("src/Shaders/Postprocessing/KernelEffects.glsl");
     fbShader->UseShader();
     fbShader->SetInt("screenTex", 0);
 
@@ -144,12 +144,13 @@ int main()
     while(!glfwWindowShouldClose(mainWindow))
     {
         ProcessInput(mainWindow);
+
         // Start ImGUI frame.
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // First pass.
+        // Draw scene to framebuffer.
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -159,7 +160,7 @@ int main()
         testScene->DrawScene();
         testScene->DrawMenu();
 
-        // Draw framebuffer quad.
+        // Draw quad with framebuffer texture.
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -168,6 +169,7 @@ int main()
         glDisable(GL_DEPTH_TEST);
         glBindTexture(GL_TEXTURE_2D, colorTex);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         // Render ImGUI UI.
         ImGui::Render();

@@ -6,6 +6,8 @@
 
 #include <map>
 #include <glm/gtc/matrix_transform.hpp>
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/trigonometric.hpp"
 #include "imgui/imgui.h"
 
 glm::vec3 lightPositions[] = {
@@ -107,6 +109,7 @@ void ModelViewer::DrawScene()
         glm::mat4 model(1.0f);
         glm::mat3 norm(1.0f);
         model = glm::translate(model, it->second);
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         norm = glm::transpose(glm::inverse(model));
         shader->SetModel(model);
         shader->SetNormal(norm);
