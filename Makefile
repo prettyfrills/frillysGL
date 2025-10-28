@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -g -fdiagnostics-color=always -I./include
+CXXFLAGS = -std=c++20 -g -fdiagnostics-color=always -I./include
 
 # Linker flags
 LDFLAGS = -L./lib
