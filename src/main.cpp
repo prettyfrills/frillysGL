@@ -2,11 +2,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "glm/ext/matrix_clip_space.hpp"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include "Scenes/ModelViewer.h"
 #include "Shader.h"
+#include "Camera.h"
+#include "stb_image.h"
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
@@ -28,7 +31,52 @@ float quadVertices[] = {
     -1.0f,  1.0f,  0.0f, 1.0f,
      1.0f, -1.0f,  1.0f, 0.0f,
      1.0f,  1.0f,  1.0f, 1.0f
-};	
+};
+
+float skyboxVertices[] = {
+    // positions          
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f
+};
 
 // Input variables.
 float lastX = 400.0f;
@@ -86,7 +134,7 @@ int main()
 
     // Enable features.
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
@@ -136,9 +184,58 @@ int main()
     glBindVertexArray(0);
 
     Shader* fbShader = new Shader();
-    fbShader->CreateFromFile("src/Shaders/Postprocessing/KernelEffects.glsl");
+    fbShader->CreateFromFile("src/Shaders/Postprocessing/Framebuffer.glsl");
     fbShader->UseShader();
     fbShader->SetInt("screenTex", 0);
+
+    // Skybox.
+    std::string textureFaces[] = {
+        "res/Textures/Skybox/right.jpg",
+        "res/Textures/Skybox/left.jpg",
+        "res/Textures/Skybox/top.jpg",
+        "res/Textures/Skybox/bottom.jpg",
+        "res/Textures/Skybox/front.jpg",
+        "res/Textures/Skybox/back.jpg"
+    };
+
+    unsigned int skybox{};
+    glGenTextures(1, &skybox);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+
+    int width, height, channels;
+    unsigned char* data;
+    stbi_set_flip_vertically_on_load(false);
+    for(int i = 0; i < 6; i++)
+    {
+        data = stbi_load(textureFaces[i].c_str(), &width, &height, &channels, 0);
+        if(!data){
+            std::cerr << "Failed to load texture: " << textureFaces[i] << std::endl;
+            return 1;
+        }
+
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    // Create skybox mesh.
+    unsigned int cubeVAO{};
+    unsigned int cubeVBO{};
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    Shader* skyShader = new Shader();
+    skyShader->CreateFromFile("src/Shaders/Skybox.glsl");
+    Camera* cam = testScene->camera;
 
     // Render loop.
     while(!glfwWindowShouldClose(mainWindow))
@@ -159,6 +256,20 @@ int main()
         testScene->SetDeltaTime(deltaTime);
         testScene->DrawScene();
         testScene->DrawMenu();
+
+        // Draw skybox.
+        glDepthMask(GL_FALSE);
+        skyShader->UseShader();
+        glm::mat4 view(1.0f);
+        glm::mat4 projection(1.0f);
+        view = glm::mat4(glm::mat3(cam->GetLookAt()));
+        projection = glm::perspective(glm::radians(60.0f), ((float)windowWidth / (float)windowHeight) ,0.1f, 100.0f);
+        skyShader->SetView(view);
+        skyShader->SetProjection(projection);
+        glBindVertexArray(cubeVAO);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
 
         // Draw quad with framebuffer texture.
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

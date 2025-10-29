@@ -8,7 +8,8 @@ class Camera;
 
 class Scene
 {
-    protected:
+    // protected:
+    public:
     Camera* camera{};
 
     public:
