@@ -238,6 +238,7 @@ int main()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    delete testScene;
     glfwTerminate();
     return 0;
 }

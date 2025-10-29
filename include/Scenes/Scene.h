@@ -13,6 +13,7 @@ class Scene
     Camera* camera{};
 
     public:
+    ~Scene();
     virtual void InitializeScene() = 0;
     virtual void DrawScene() = 0;
     virtual void MoveCamera(glm::vec3 direction) = 0;

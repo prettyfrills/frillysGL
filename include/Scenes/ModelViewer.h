@@ -26,6 +26,7 @@ class ModelViewer : public Scene
 
     public:
     ModelViewer();
+    ~ModelViewer();
     void InitializeScene();
     void DrawScene();
     void DrawMenu();

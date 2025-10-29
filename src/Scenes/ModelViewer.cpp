@@ -22,6 +22,16 @@ ModelViewer::ModelViewer()
     //InitializeScene();
 }
 
+ModelViewer::~ModelViewer()
+{
+    delete sceneModel;
+    delete lightModel;
+    delete glassModel;
+    delete shader;
+    delete stencil;
+    delete light;
+}
+
 void ModelViewer::InitializeScene()
 {
     camera = new Camera();

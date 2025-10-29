@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 Window::Window()
 : width(800), height(600)

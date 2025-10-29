@@ -1,4 +1,10 @@
 #include "Scenes/Scene.h"
+#include "Camera.h"
+
+Scene::~Scene()
+{
+    delete camera;
+}
 
 void Scene::InitializeScene()
 {
