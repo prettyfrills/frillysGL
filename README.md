@@ -1,5 +1,5 @@
 # frillysGL
-Personal project to learn modern OpenGL
+Personal project to learn modern OpenGL and computer graphics concepts and techniques.
 
 ## Dependencies
 
