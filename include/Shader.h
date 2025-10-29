@@ -26,6 +26,7 @@ class Shader
     public:
 
     Shader();
+    Shader(const char* shaderPath);
     ~Shader();
 
     void CreateFromString(const char* vertexCode, const char* fragmentCode);

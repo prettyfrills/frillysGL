@@ -10,6 +10,12 @@ Shader::Shader()
 : ID(0)
 {}
 
+Shader::Shader(const char* shaderPath)
+: ID(0)
+{
+    CreateFromFile(shaderPath);
+}
+
 void Shader::UseShader()
 {
     glUseProgram(ID);
