@@ -55,7 +55,7 @@ void ModelViewer::InitializeScene()
         shader->AddPointLight(&light, i);
     }
 
-    lightModel = new Model("res/Models/Cube/Cube.obj");
+    lightModel = new Model("res/Models/test/uvSphere.obj");
     light = new Shader();
     light->CreateFromFile("src/Shaders/UnlitFlat.glsl");
 

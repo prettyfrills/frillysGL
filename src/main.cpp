@@ -2,13 +2,15 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "glm/ext/matrix_clip_space.hpp"
+// #include "glm/ext/matrix_clip_space.hpp"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include "Scenes/ModelViewer.h"
+#include "Scenes/Planet.h"
+
+// Refactor to Scene.
 #include "Shader.h"
-#include "Camera.h"
 #include "stb_image.h"
 #include "Defaults.h"
 
@@ -33,6 +35,7 @@ bool mouseFocused = true;
 bool wireframe = false;
 
 ModelViewer* testScene = new ModelViewer();
+PlanetScene* planet = new PlanetScene();
 
 int main()
 {
@@ -73,16 +76,17 @@ int main()
     ImGui_ImplOpenGL3_Init();
 
     // Make scene.
-    testScene->InitializeScene();
+    // testScene->InitializeScene();
+    planet->InitializeScene();
 
     glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Enable features.
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    // glEnable(GL_STENCIL_TEST);
+    // glStencilFunc(GL_EQUAL, 1, 0xFF);
+    // glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -132,55 +136,6 @@ int main()
     fbShader.UseShader();
     fbShader.SetInt("screenTex", 0);
 
-    // Skybox.
-    std::string textureFaces[] = {
-        "res/Textures/Skybox/right.jpg",
-        "res/Textures/Skybox/left.jpg",
-        "res/Textures/Skybox/top.jpg",
-        "res/Textures/Skybox/bottom.jpg",
-        "res/Textures/Skybox/front.jpg",
-        "res/Textures/Skybox/back.jpg"
-    };
-
-    unsigned int skybox{};
-    glGenTextures(1, &skybox);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
-
-    int width, height, channels;
-    unsigned char* data;
-    stbi_set_flip_vertically_on_load(false);
-    for(int i = 0; i < 6; i++)
-    {
-        data = stbi_load(textureFaces[i].c_str(), &width, &height, &channels, 0);
-        if(!data){
-            std::cerr << "Failed to load texture: " << textureFaces[i] << std::endl;
-            return 1;
-        }
-
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    }
-    stbi_image_free(data);
-
-    // Create skybox mesh.
-    unsigned int cubeVAO{};
-    unsigned int cubeVBO{};
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &cubeVBO);
-    glBindVertexArray(cubeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(DefaultMesh::skyboxVertices), DefaultMesh::skyboxVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-
-    Shader skyShader = Shader("src/Shaders/Skybox.glsl");
-    Camera* cam = testScene->camera;
-
     // Render loop.
     while(!glfwWindowShouldClose(mainWindow))
     {
@@ -193,27 +148,15 @@ int main()
 
         // Draw scene to framebuffer.
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        // glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
-        testScene->SetDeltaTime(deltaTime);
-        testScene->DrawScene();
-        testScene->DrawMenu();
-
-        // Draw skybox.
-        glDepthMask(GL_FALSE);
-        skyShader.UseShader();
-        glm::mat4 view(1.0f);
-        glm::mat4 projection(1.0f);
-        view = glm::mat4(glm::mat3(cam->GetLookAt()));
-        projection = glm::perspective(glm::radians(60.0f), ((float)windowWidth / (float)windowHeight) ,0.1f, 100.0f);
-        skyShader.SetView(view);
-        skyShader.SetProjection(projection);
-        glBindVertexArray(cubeVAO);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthMask(GL_TRUE);
+        // testScene->SetDeltaTime(deltaTime);
+        // testScene->DrawScene();
+        // testScene->DrawMenu();
+        planet->DrawScene();
 
         // Draw quad with framebuffer texture.
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -264,7 +207,8 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     yOffset *= sensitivity;
 
     if(mouseFocused)
-    testScene->RotateCamera(xOffset, yOffset);
+    // testScene->RotateCamera(xOffset, yOffset);
+    planet->RotateCamera(xOffset, yOffset);
 }
 
 void KeyDownCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
@@ -299,7 +243,8 @@ void ProcessInput(GLFWwindow* window)
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         velocity.y -= 1.0f;
 
-    testScene->MoveCamera(velocity * deltaTime);
+    // testScene->MoveCamera(velocity * deltaTime);
+    planet->MoveCamera(velocity * deltaTime);
 }
 
 void ToggleMouseLock(GLFWwindow* window)

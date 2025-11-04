@@ -15,12 +15,6 @@ Model::Model(std::string const &directory, bool flipTexture)
     LoadModel(directory);
 }
 
-Model::~Model()
-{
-    // while(meshes.size() > 0)
-    //     delete meshes[0];
-}
-
 int Model::GetVertices()
 {
     return vertices;

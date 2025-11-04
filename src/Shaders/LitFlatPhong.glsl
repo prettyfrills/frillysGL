@@ -30,7 +30,7 @@ float ambStrength = 0.1f;
 float spec specStrength = 0.01f;
 vec3 ambient = objColor * ambStrength;
 
-in vec3 outNorm;
+in vec3 Normal;
 in vec3 fragPos;
 out vec4 FragColor;
 

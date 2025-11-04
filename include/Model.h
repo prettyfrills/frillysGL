@@ -28,7 +28,6 @@ class Model
     public:
     Model(const char* directory, bool flipTexture = true);
     Model(std::string const &directory, bool flipTexture = true);
-    ~Model();
     void Draw(Shader& shader);
 
     int GetVertices();
