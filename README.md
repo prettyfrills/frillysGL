@@ -8,4 +8,6 @@ Personal project to learn modern OpenGL and computer graphics concepts and techn
 
 ## References
 [LearnOpenGL](https://learnopengl.com/Introduction) <br>
-[Catlike Coding](https://catlikecoding.com/)
+[Catlike Coding](https://catlikecoding.com/) <br>
+[The Book of Shaders](https://thebookofshaders.com/) <br>
+[Eric Obermühlner's Blog](http://obermuhlner.ch/wordpress/)
