@@ -22,14 +22,8 @@ PlanetScene::PlanetScene()
     
 }
 
-void PlanetScene::InitializeScene()
+void PlanetScene::LoadSkybox()
 {
-    camera = new Camera();
-    planetModel = new Model("res/Models/uvSphere/uvSphere.obj");
-    planetShader = new Shader("src/Shaders/UnlitFlat.glsl");
-    skyShader = new Shader("src/Shaders/Skybox.glsl");
-    light = new DirectionalLight();
-
     // Assemble skybox mesh.
     glGenVertexArrays(1, &skyVAO);
     glGenBuffers(1, &skyVBO);
@@ -59,6 +53,21 @@ void PlanetScene::InitializeScene()
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
     stbi_image_free(data);
+}
+
+void PlanetScene::InitializeScene()
+{
+    camera = new Camera();
+    planetModel = new Model("res/Models/uvSphere/uvSphere.obj");
+    planetShader = new Shader("src/Shaders/Planet.glsl");
+    skyShader = new Shader("src/Shaders/Skybox.glsl");
+    LoadSkybox();
+
+    planetShader->UseShader();
+    planetShader->SetVec3("objColor", glm::vec3(1.0f, 0.569f, 0.643f));
+    planetShader->SetVec3("lightPos", glm::vec3(3.0f, 1.0f, 3.0f));
+    planetShader->SetVec3("lightColor", glm::vec3(1.0f));
+    planetShader->SetVec3("ambientColor", glm::vec3(1.0f));
 
     // TODO: Add framebuffer for postprocess support.
 }
@@ -68,7 +77,7 @@ void PlanetScene::DrawScene()
     // Draw planet.
     planetShader->UseShader();
     planetShader->SetVec3("viewPos", camera->position);
-    planetShader->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
+    // planetShader->SetVec3("color", glm::vec3(1.0f, 0.569f, 0.643f));
 
     glm::mat4 model(1.0f);
     glm::mat4 view(1.0f);

@@ -14,6 +14,8 @@ class PlanetScene : public Scene
     unsigned int skyVAO, skyVBO;
     unsigned int skyTex{};
 
+    void LoadSkybox();
+
     public:
     PlanetScene();
     void InitializeScene();
