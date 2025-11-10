@@ -159,11 +159,12 @@ void main()
     vec2 newCoord;
     newCoord.y = texCoord.y * 1;
     newCoord.x = texCoord.x * 0.2;
+    newCoord += vec2(noise2D(texCoord * 2));
     vec3 randCol = vec3(gNoise2D(newCoord * 25));
 
-    vec3 col1 = vec3(0.2, 0.0, 0.4);
-    vec3 col2 = vec3(0.4, 0.0, 1.0);
+    vec3 col1 = vec3(0.1, 0.0, 0.1);
+    vec3 col2 = vec3(0.4, 0.8, 0.4);
     vec3 newCol = mix(col1, col2, randCol);
 
-    FragColor = vec4(newCol * light, 1.0);
+    FragColor = vec4(newCol, 1.0);
 }

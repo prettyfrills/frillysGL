@@ -59,7 +59,8 @@ void PlanetScene::InitializeScene()
 {
     camera = new Camera();
     planetModel = new Model("res/Models/uvSphere/uvSphere.obj");
-    planetShader = new Shader("src/Shaders/Planet.glsl");
+    // planetShader = new Shader("src/Shaders/grPlanet.glsl");
+    planetShader = new Shader("src/Shaders/fbmPlanet.glsl");
     skyShader = new Shader("src/Shaders/Skybox.glsl");
     LoadSkybox();
 
