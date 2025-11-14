@@ -55,13 +55,13 @@ void main()
     float spec = max(dot(viewDir, reflectDir), 0.0);
 
     vec3 diffuse = diff * lightColor;
-    vec3 specular = spec * lightColor * 0;  // Add back in after using noise as a specular mask.
-    vec3 light = ambient + diffuse + specular;
+    vec3 specular = spec * lightColor;  // Add back in after using noise as a specular mask.
+    // vec3 light = ambient + diffuse + specular;
 
     vec2 newCoord;
-    newCoord.y = texCoord.y * 1;
-    newCoord.x = texCoord.x * 0.2;
-    newCoord += pattern(newCoord);
+    newCoord.y = texCoord.y * 0.1;
+    newCoord.x = texCoord.x * 3;
+    // newCoord += pattern(newCoord);
 
     // Gradient noise.
     // vec3 noise = vec3(gNoise2D(newCoord * 25));
@@ -71,16 +71,15 @@ void main()
     vec2 q, r;
     vec3 noise = vec3(colorPattern(texCoord, q, r));
 
-    // vec3 col1 = vec3(0.659, 0.486, 0.537);
-    // vec3 col2 = vec3(0.612, 0.643, 0.541);
-    // vec3 col3 = vec3(0.686, 0.686, 0.580);
-    // vec3 col4 = vec3(0.753, 0.635, 0.608);
+    vec3 col3 = vec3(0.659, 0.486, 0.537);
+    vec3 col2 = vec3(0.612, 0.643, 0.541);
+    vec3 col1 = vec3(0.686, 0.686, 0.580);
+    vec3 col4 = vec3(0.753, 0.635, 0.608);
 
-    vec3 col1 = vec3(0.3,0.05,0.05);
-    vec3 col2 = vec3(0.9,0.9,0.9);
-    vec3 col3 = vec3(0.5,0.2,0.2);
-    // vec3 col4 = vec3(0.8, 0.7, 0.7);
-    vec3 col4 = vec3(0.4);
+    // vec3 col1 = vec3(0.3,0.05,0.05);
+    // vec3 col2 = vec3(0.9,0.9,0.9);
+    // vec3 col3 = vec3(0.5,0.2,0.2);
+    // vec3 col4 = vec3(0.4);
 
     vec3 color = vec3(0.2,0.1,0.4);
     color = mix(col1, col2, noise);
@@ -88,15 +87,12 @@ void main()
     // color = mix(color, col4, 1.5*r.y*r.y);
     color = mix(color, col4, 0.5*smoothstep(1.2,1.3,abs(r.y)+abs(r.x)));
 
-    // vec3 test = vec3(dot(r, r));
+    vec3 test = vec3(dot(r, r));
     // vec3 test = vec3(dot(q, q));
-    vec3 test = vec3(2.0 * q.y * q.y);
+    // vec3 test = vec3(2.0 * q.y * q.y);
 
-    // color *= (noise * 2.0);
-    // color = vec3(1.0) - color;
-    // color /= 1.5;
-    // color = mix(color, col4, 0.5*smoothstep(1.2,1.3,abs(r.y)+abs(r.x)));
-
+    specular *= test;
+    vec3 light = ambient + diffuse + specular;
     FragColor = vec4(color * light, 1.0);
 }
 
@@ -153,7 +149,7 @@ float pattern(vec2 st)
 
 float colorPattern(vec2 st, out vec2 q, out vec2 r)
 {
-    float h = 1.0;
+    float h = 1;
 
     q.x = fbm( st + vec2(0.0,0.0), h);
     q.y = fbm( st + vec2(5.2,1.3), h);
